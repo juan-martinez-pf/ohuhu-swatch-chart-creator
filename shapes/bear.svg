@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="shape-bear" clipPathUnits="objectBoundingBox">
+    <path transform="scale(0.01)" d="M22 28 C10 28 2 20 2 12 C2 4 10 0 18 4 C22 6 24 10 25 15 C30 8 40 4 50 4 C60 4 70 8 75 15 C76 10 78 6 82 4 C90 0 98 4 98 12 C98 20 90 28 78 28 C90 38 96 52 96 68 C96 85 75 98 50 98 C25 98 4 85 4 68 C4 52 10 38 22 28Z"/>
+  </clipPath>
+</svg>

@@ -38,6 +38,29 @@
   .fam-chip .chip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
   .fam-all-none{display:inline-flex;gap:0;margin-right:.3rem}
   .fam-all-none .tog-btn{font-size:.58rem;padding:.2rem .45rem}
+  /* print panel */
+  .print-panel{display:none;flex-wrap:wrap;gap:.55rem;padding:.55rem 1.1rem;border-bottom:1px solid var(--border);background:var(--surface);align-items:center}
+  .print-panel.visible{display:flex}
+  /* unfilled */
+  body.unfilled .color-block{background:#fff !important;box-shadow:inset 0 0 0 1px var(--border)}
+  /* label positions */
+  body.label-above .swatch{flex-direction:column-reverse}
+  body.label-left .swatch{flex-direction:row-reverse}
+  body.label-left .swatch-info{border-top:none;border-right:1px solid var(--border);text-align:right}
+  body.label-left .color-block{width:60%;aspect-ratio:1}
+  body.label-right .swatch{flex-direction:row}
+  body.label-right .swatch-info{border-top:none;border-left:1px solid var(--border)}
+  body.label-right .color-block{width:60%;aspect-ratio:1}
+  body.label-inside .swatch-info{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.45);border-top:none;padding:.25rem .4rem}
+  body.label-inside .swatch{position:relative}
+  body.label-inside .color-block{aspect-ratio:1}
+  body.label-inside .swatch-code{color:#fff}
+  body.label-inside .swatch-name{color:rgba(255,255,255,.9)}
+  body.label-inside .swatch-hex,body.label-inside .swatch-old{color:rgba(255,255,255,.7)}
+  body.label-none .swatch-info{display:none}
+  /* shapes */
+  .shape-circle{border-radius:50%;overflow:hidden}
+  .shape-clip{overflow:hidden}
   /* main */
   .main{flex:1;min-width:0}
   .group-section{scroll-margin-top:125px}
@@ -77,7 +100,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v6</span></h1>
+    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v7</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -97,6 +120,12 @@
       <option value="fam-brt">family → brightness</option>
       <option value="oldcode">old code</option>
     </select>
+    <span class="ctrl-label">Set</span>
+    <div class="btn-group set-toggles">
+      <button class="tog-btn active" id="btn-honolulu" onclick="toggleSet('honolulu')">Honolulu</button>
+      <button class="tog-btn" id="btn-oahu" onclick="toggleSet('oahu')">Oahu</button>
+      <button class="tog-btn" id="btn-kaala" onclick="toggleSet('kaala')">Kaala</button>
+    </div>
     <span class="ctrl-label">Group</span>
     <div class="btn-group">
       <button class="tog-btn active" id="btn-flat" onclick="setGroup(false)">flat</button>
@@ -107,25 +136,55 @@
       <button class="tog-btn active" id="btn-grid" onclick="setView('grid')">▦</button>
       <button class="tog-btn" id="btn-list" onclick="setView('list')">≡</button>
     </div>
-    <span class="ctrl-label">Page</span>
-    <select id="pageSize">
-      <option value="card">Card 2.5 × 3.5 in</option>
-      <option value="a5">A5 5.8 × 8.3 in</option>
-      <option value="letter" selected>Letter 8.5 × 11 in</option>
-      <option value="a4">A4 8.3 × 11.7 in</option>
-      <option value="legal">Legal 8.5 × 14 in</option>
-      <option value="tabloid">Tabloid 11 × 17 in</option>
-    </select>
-    <span class="ctrl-label">Set</span>
-    <div class="btn-group set-toggles">
-      <button class="tog-btn active" id="btn-honolulu" onclick="toggleSet('honolulu')">Honolulu</button>
-      <button class="tog-btn" id="btn-oahu" onclick="toggleSet('oahu')">Oahu</button>
-      <button class="tog-btn" id="btn-kaala" onclick="toggleSet('kaala')">Kaala</button>
-    </div>
+    <button class="tog-btn" id="btn-print" onclick="togglePrintPanel()" style="margin-left:.3rem">Print Settings</button>
     <span class="count" id="count">364 shown</span>
   </div>
 </header>
 <div class="family-toolbar" id="familyToolbar"></div>
+<div class="print-panel" id="printPanel">
+  <span class="ctrl-label">Page</span>
+  <select id="pageSize" onchange="setPrintSetting('pageSize',this.value)">
+    <option value="card">Card 2.5 × 3.5 in</option>
+    <option value="a5">A5 5.8 × 8.3 in</option>
+    <option value="letter" selected>Letter 8.5 × 11 in</option>
+    <option value="a4">A4 8.3 × 11.7 in</option>
+    <option value="legal">Legal 8.5 × 14 in</option>
+    <option value="tabloid">Tabloid 11 × 17 in</option>
+  </select>
+  <span class="ctrl-label">Filled</span>
+  <div class="btn-group">
+    <button class="tog-btn active" id="btn-filled-yes" onclick="toggleFilled(true)">Yes</button>
+    <button class="tog-btn" id="btn-filled-no" onclick="toggleFilled(false)">No</button>
+  </div>
+  <span class="ctrl-label">Label</span>
+  <select id="labelPos" onchange="setLabelPos(this.value)">
+    <option value="below" selected>Below</option>
+    <option value="above">Above</option>
+    <option value="left">Left</option>
+    <option value="right">Right</option>
+    <option value="inside">Inside</option>
+    <option value="none">None</option>
+  </select>
+  <span class="ctrl-label">Label Info</span>
+  <div class="btn-group">
+    <button class="tog-btn active" id="btn-li-code" onclick="toggleLabelInfo('code')">New Code</button>
+    <button class="tog-btn active" id="btn-li-name" onclick="toggleLabelInfo('name')">Color Name</button>
+    <button class="tog-btn active" id="btn-li-hex" onclick="toggleLabelInfo('hex')">Color Hex</button>
+    <button class="tog-btn active" id="btn-li-old" onclick="toggleLabelInfo('old')">Old Code</button>
+  </div>
+  <span class="ctrl-label">Shape</span>
+  <select id="swatchShape" onchange="setShape(this.value)">
+    <option value="square" selected>Square</option>
+    <option value="circle">Circle</option>
+    <option value="heart">Heart</option>
+    <option value="puppy">Puppy</option>
+    <option value="cat">Cat</option>
+    <option value="bear">Bear</option>
+    <option value="bee">Bee</option>
+    <option value="mixed">Mixed</option>
+  </select>
+</div>
+<svg style="position:absolute;width:0;height:0"><defs id="shapeDefs"></defs></svg>
 <div class="layout">
   <div class="main">
     <div id="content"></div>
@@ -146,8 +205,6 @@ const PAGE_SIZES={
   legal:{w:8.5,h:14,label:'Legal'},
   tabloid:{w:11,h:17,label:'Tabloid'}
 };
-let currentPageSize='letter';
-document.getElementById('pageSize').addEventListener('change',function(){currentPageSize=this.value;});
 
 function getFamily(code){if(code==='0'||code==='120')return'Special';const m=code.match(/^([A-Za-z]+)/);return m?m[1].toUpperCase():'Special';}
 COLORS.forEach(c=>c.family=getFamily(c.code));
@@ -218,17 +275,82 @@ function updateFamChips(){
   });
 }
 
-function makeSwatch(c){
+// print settings
+const printSettings={pageSize:'letter',filled:true,labelPos:'below',labelInfo:{code:true,name:true,hex:true,old:true},shape:'square'};
+const SHAPES=['heart','puppy','cat','bear','bee'];
+
+function togglePrintPanel(){
+  const p=document.getElementById('printPanel');
+  p.classList.toggle('visible');
+  document.getElementById('btn-print').classList.toggle('active',p.classList.contains('visible'));
+}
+function setPrintSetting(key,val){printSettings[key]=val;}
+function toggleFilled(on){
+  printSettings.filled=on;
+  document.getElementById('btn-filled-yes').classList.toggle('active',on);
+  document.getElementById('btn-filled-no').classList.toggle('active',!on);
+  document.body.classList.toggle('unfilled',!on);
+  if(!on){
+    printSettings.labelInfo.hex=false;
+    document.getElementById('btn-li-hex').classList.remove('active');
+  }
+}
+function setLabelPos(pos){
+  printSettings.labelPos=pos;
+  document.body.className=document.body.className.replace(/\blabel-\S+/g,'');
+  if(pos!=='below')document.body.classList.add('label-'+pos);
+}
+function toggleLabelInfo(field){
+  printSettings.labelInfo[field]=!printSettings.labelInfo[field];
+  document.getElementById('btn-li-'+field).classList.toggle('active',printSettings.labelInfo[field]);
+  render();
+}
+function setShape(shape){
+  printSettings.shape=shape;
+  render();
+}
+function getShapeClass(idx){
+  const s=printSettings.shape;
+  if(s==='square')return'';
+  if(s==='circle')return'shape-circle';
+  if(s==='mixed'){
+    if(idx%7===0)return'shape-clip shape-'+SHAPES[idx%SHAPES.length];
+    return'shape-circle';
+  }
+  return'shape-clip shape-'+s;
+}
+
+// load external SVG shapes
+function loadShapes(){
+  const defs=document.getElementById('shapeDefs');
+  SHAPES.forEach(name=>{
+    fetch('shapes/'+name+'.svg').then(r=>r.text()).then(svg=>{
+      const tmp=document.createElement('div');tmp.innerHTML=svg;
+      const clipPath=tmp.querySelector('clipPath');
+      if(clipPath){clipPath.id='shape-'+name;defs.appendChild(clipPath);}
+    }).catch(()=>{});
+  });
+}
+
+function makeSwatch(c,idx){
 const el=document.createElement('div');
 el.className='swatch';
+const shapeClass=getShapeClass(idx||0);
+const clipStyle=shapeClass.includes('shape-clip')?'clip-path:url(#'+shapeClass.split(' ').pop()+')':'';
 const oldDisplay=activeSets.size===1?'old: '+c.oldCode:Object.entries(c.oldCodes).map(([s,v])=>s.slice(0,3)+': '+v).join(' · ');
-el.innerHTML=`<div class="color-block" style="background:#${c.hex}"><div class="copy-flash">copy #${c.hex}</div></div><div class="swatch-info"><div class="swatch-code">${c.code}</div><div class="swatch-name">${c.name}</div><div class="swatch-hex">#${c.hex}</div><div class="swatch-old">${oldDisplay}</div></div>`;
+const li=printSettings.labelInfo;
+let info='';
+if(li.code)info+=`<div class="swatch-code">${c.code}</div>`;
+if(li.name)info+=`<div class="swatch-name">${c.name}</div>`;
+if(li.hex)info+=`<div class="swatch-hex">#${c.hex}</div>`;
+if(li.old)info+=`<div class="swatch-old">${oldDisplay}</div>`;
+el.innerHTML=`<div class="color-block ${shapeClass}" style="background:#${c.hex};${clipStyle}"><div class="copy-flash">copy #${c.hex}</div></div><div class="swatch-info">${info}</div>`;
 el.addEventListener('click',()=>copyHex(c.hex,c.name));
 return el;
 }
 function makeGrid(colors){
 const g=document.createElement('div');g.className='grid';
-sortColors(colors,currentSort).forEach(c=>g.appendChild(makeSwatch(c)));
+sortColors(colors,currentSort).forEach((c,i)=>g.appendChild(makeSwatch(c,i)));
 return g;
 }
 function famRep(colors){const s=[...colors].sort((a,b)=>brightness(a.hex)-brightness(b.hex));return s[Math.floor(s.length/2)].hex;}
@@ -291,6 +413,7 @@ function setView(v){document.body.classList.toggle('list-view',v==='list');docum
 function copyHex(hex,name){navigator.clipboard.writeText('#'+hex).then(()=>showToast(`copied #${hex} · ${name}`));}
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);}
+loadShapes();
 updateSubtitle();
 render();
 </script>

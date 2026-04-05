@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="shape-cat" clipPathUnits="objectBoundingBox">
+    <path transform="scale(0.01)" d="M12 45 L5 5 C5 2 8 2 10 5 L30 30 C38 25 45 22 50 22 C55 22 62 25 70 30 L90 5 C92 2 95 2 95 5 L88 45 C93 52 96 62 96 72 C96 88 75 98 50 98 C25 98 4 88 4 72 C4 62 7 52 12 45Z"/>
+  </clipPath>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="shape-puppy" clipPathUnits="objectBoundingBox">
+    <path transform="scale(0.01)" d="M15 35 C5 30 2 18 8 10 C14 2 22 8 25 18 C28 10 35 5 50 5 C65 5 72 10 75 18 C78 8 86 2 92 10 C98 18 95 30 85 35 C92 42 95 55 92 65 C88 80 72 95 50 98 C28 95 12 80 8 65 C5 55 8 42 15 35Z"/>
+  </clipPath>
+</svg>

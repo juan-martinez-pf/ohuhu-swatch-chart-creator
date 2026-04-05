@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="shape-heart" clipPathUnits="objectBoundingBox">
+    <path transform="scale(0.01)" d="M50 88 C25 68 2 52 2 30 C2 14 14 2 30 2 C38 2 46 6 50 14 C54 6 62 2 70 2 C86 2 98 14 98 30 C98 52 75 68 50 88Z"/>
+  </clipPath>
+</svg>
