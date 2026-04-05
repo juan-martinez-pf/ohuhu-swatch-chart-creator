@@ -12,8 +12,8 @@
 
 ## In Progress
 
-- [ ] Oahu and Kaala color sets — import and UI toggle
-- [ ] Product filter — filter to a specific Ohuhu set (Honolulu, Oahu, Kaala)
+- [x] Oahu and Kaala color sets — import and UI toggle
+- [x] Product filter — filter to a specific Ohuhu set (Honolulu, Oahu, Kaala)
 
 ## Planned
 
