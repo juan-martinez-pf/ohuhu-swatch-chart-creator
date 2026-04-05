@@ -147,7 +147,7 @@
       <button class="tog-btn active" id="btn-grid" onclick="setView('grid')">▦</button>
       <button class="tog-btn" id="btn-list" onclick="setView('list')">≡</button>
     </div>
-    <button class="tog-btn" id="btn-print" onclick="togglePrintPanel()" style="margin-left:.3rem">Print Settings</button>
+    <button class="tog-btn" id="btn-print" onclick="togglePrintPanel()" style="margin-left:.3rem">Print Preview</button>
     <span class="count" id="count">364 shown</span>
   </div>
 </header>
@@ -422,45 +422,149 @@ function getPageDimsPx(){
   const ps=PAGE_SIZES[printSettings.pageSize]||PAGE_SIZES.letter;
   return{w:ps.w*96,h:ps.h*96,pad:0.4*96};
 }
-function makePages(allColors){
+function makePages(displayColors){
   const dims=getPageDimsPx();
   const cw=dims.w-dims.pad*2, ch=dims.h-dims.pad*2;
-  // estimate swatch size: label below ~140px tall, 112px wide; inside/none ~112px
   const lp=printSettings.labelPos;
   const swH=(lp==='left'||lp==='right')?50:(lp==='none'||lp==='inside')?112:145;
   const swW=(lp==='left'||lp==='right')?200:112;
-  const gap=printSettings.force1Page?1:printSettings.spacing==='wide'?swW*0.03:printSettings.spacing==='medium'?swW*0.015:1;
-  const cols=Math.max(1,Math.floor((cw+gap)/(swW+gap)));
-  const rows=Math.max(1,Math.floor((ch+gap)/(swH+gap)));
-  const perPage=cols*rows;
-  const sorted=sortColors(allColors,currentSort);
+  const gapNum=printSettings.force1Page?1:printSettings.spacing==='wide'?swW*0.03:printSettings.spacing==='medium'?swW*0.015:1;
+  const cols=Math.max(1,Math.floor((cw+gapNum)/(swW+gapNum)));
+  const famHdrH=28;
+
+  // Build a flat list of items: {type:'header',fam,meta} or {type:'swatch',color}
+  const items=[];
+  if(grouped){
+    const famMap={};
+    displayColors.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
+    const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
+    famOrder.forEach(fam=>{
+      const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
+      items.push({type:'header',fam,meta,count:famMap[fam].length});
+      sortColors(famMap[fam],currentSort).forEach(c=>items.push({type:'swatch',color:c}));
+    });
+  } else {
+    sortColors(displayColors,currentSort).forEach(c=>items.push({type:'swatch',color:c}));
+  }
+
+  // Flow items into pages
+  const pages=[];
+  let page=null,curY=0,colIdx=0,swatchIdx=0;
+
+  function newPage(){
+    page={el:document.createElement('div'),children:[]};
+    page.el.className='page';
+    page.el.style.width=dims.w+'px';page.el.style.height=dims.h+'px';
+    pages.push(page);
+    curY=0;colIdx=0;
+  }
+
+  function remainingH(){return ch-curY;}
+
+  newPage();
+
+  for(let i=0;i<items.length;i++){
+    const item=items[i];
+    if(item.type==='header'){
+      // If we're mid-row, finish that row first
+      if(colIdx>0){curY+=swH+gapNum;colIdx=0;}
+      // If header + at least one row of swatches won't fit, start new page
+      if(remainingH()<famHdrH+swH){newPage();}
+      const hdr=document.createElement('div');
+      hdr.style.cssText='font-size:.75rem;font-weight:500;padding:4px 0;line-height:1.3;';
+      hdr.textContent=item.meta.label+' — '+item.meta.desc+' ('+item.count+')';
+      page.children.push({el:hdr,y:curY});
+      curY+=famHdrH;
+    } else {
+      // Swatch — check if new row is needed
+      if(colIdx>=cols){curY+=swH+gapNum;colIdx=0;}
+      // If this row won't fit, new page
+      if(remainingH()<swH){newPage();}
+      colIdx++;
+      swatchIdx++;
+    }
+  }
+
+  // Now actually build the DOM: re-flow to get correct grid chunks per page
+  // We know the layout, so rebuild using the same logic but creating actual elements
   const frag=document.createDocumentFragment();
 
   if(printSettings.force1Page){
-    const page=document.createElement('div');page.className='page';
-    page.style.width=dims.w+'px';page.style.height=dims.h+'px';
-    const grid=makeGrid(allColors,0);
-    // scale to fit
-    const neededRows=Math.ceil(sorted.length/cols);
+    const pg=document.createElement('div');pg.className='page';
+    pg.style.width=dims.w+'px';pg.style.height=dims.h+'px';
+    const allSwatches=items.filter(it=>it.type==='swatch').map(it=>it.color);
+    const grid=makeGrid(allSwatches,0);
+    const neededRows=Math.ceil(allSwatches.length/cols);
     const neededH=neededRows*(swH+1);
     const scale=Math.min(1,ch/neededH,cw/(cols*(swW+1)));
     grid.style.transformOrigin='top left';
     grid.style.transform='scale('+scale+')';
     grid.style.width=(cw/scale)+'px';
-    page.appendChild(grid);
-    page.innerHTML+='<div class="page-num">Page 1 of 1</div>';
-    frag.appendChild(page);
-  } else {
-    const totalPages=Math.ceil(sorted.length/perPage);
-    for(let p=0;p<totalPages;p++){
-      const page=document.createElement('div');page.className='page';
-      page.style.width=dims.w+'px';page.style.height=dims.h+'px';
-      const chunk=sorted.slice(p*perPage,(p+1)*perPage);
-      page.appendChild(makeGrid(chunk,p*perPage));
-      page.innerHTML+='<div class="page-num">Page '+(p+1)+' of '+totalPages+'</div>';
-      frag.appendChild(page);
+    pg.appendChild(grid);
+    pg.innerHTML+='<div class="page-num">Page 1 of 1</div>';
+    frag.appendChild(pg);
+    return frag;
+  }
+
+  // Flow layout pass — build actual pages with elements
+  let curPage=null,cy=0,ci=0,swBuf=[];
+  const allPages=[];
+
+  function flushSwatches(){
+    if(swBuf.length===0)return;
+    const g=document.createElement('div');g.className='grid';
+    const gap=getSpacingGap();g.style.gap=gap;
+    swBuf.forEach(c=>g.appendChild(makeSwatch(c,0)));
+    curPage.appendChild(g);
+    swBuf=[];
+  }
+  function startPage(){
+    flushSwatches();
+    curPage=document.createElement('div');curPage.className='page';
+    curPage.style.width=dims.w+'px';curPage.style.height=dims.h+'px';
+    allPages.push(curPage);
+    cy=0;ci=0;
+  }
+  function spaceLeft(){return ch-cy;}
+
+  startPage();
+
+  for(let i=0;i<items.length;i++){
+    const item=items[i];
+    if(item.type==='header'){
+      // Flush any pending swatches from previous family
+      if(ci>0){cy+=swH+gapNum;ci=0;}
+      flushSwatches();
+      // Need room for header + at least one row
+      if(spaceLeft()<famHdrH+swH){startPage();}
+      const hdr=document.createElement('div');
+      hdr.style.cssText='font-size:.75rem;font-weight:500;padding:4px 0;line-height:1.3;';
+      hdr.textContent=item.meta.label+' \u2014 '+item.meta.desc+' ('+item.count+')';
+      curPage.appendChild(hdr);
+      cy+=famHdrH;
+    } else {
+      if(ci>=cols){
+        cy+=swH+gapNum;ci=0;
+        flushSwatches();
+      }
+      if(spaceLeft()<swH){
+        flushSwatches();
+        startPage();
+      }
+      swBuf.push(item.color);
+      ci++;
     }
   }
+  flushSwatches();
+
+  // Add page numbers
+  allPages.forEach((pg,idx)=>{
+    const num=document.createElement('div');num.className='page-num';
+    num.textContent='Page '+(idx+1)+' of '+allPages.length;
+    pg.appendChild(num);
+    frag.appendChild(pg);
+  });
+
   return frag;
 }
 function famRep(colors){const s=[...colors].sort((a,b)=>brightness(a.hex)-brightness(b.hex));return s[Math.floor(s.length/2)].hex;}
@@ -511,20 +615,7 @@ if(displayColors.length===0){noR.style.display='block';return;}
 
 // print preview — paged layout
 if(printPanelOpen){
-  if(!grouped){
-    content.appendChild(makePages(displayColors));
-  } else {
-    const famMap={};
-    displayColors.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
-    const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
-    famOrder.forEach(fam=>{
-      const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
-      const hdr=document.createElement('div');hdr.className='group-header';
-      hdr.innerHTML=`<div class="group-title">${meta.label} <span style="font-weight:300;font-size:.82rem;font-family:'DM Mono',monospace"> ${meta.desc}</span></div><span class="group-count">${famMap[fam].length} colors</span>`;
-      content.appendChild(hdr);
-      content.appendChild(makePages(famMap[fam]));
-    });
-  }
+  content.appendChild(makePages(displayColors));
   return;
 }
 
