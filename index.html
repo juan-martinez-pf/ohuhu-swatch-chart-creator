@@ -118,7 +118,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v30</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v31</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -383,12 +383,13 @@ function setForce1Page(on){
   document.getElementById('spacingGroup').style.pointerEvents=on?'none':'auto';
   render();
 }
-function getShapeClass(idx){
+function getShapeClass(idx,code){
   const s=printSettings.shape;
   if(s==='square')return'';
   if(s==='circle')return'shape-circle';
   if(s==='mixed'){
-    if(idx%7===0)return'shape-clip shape-'+SHAPES[idx%SHAPES.length];
+    let h=0;const key=code||String(idx);for(let i=0;i<key.length;i++){h=Math.imul(31,h)+key.charCodeAt(i)|0;}
+    if((h>>>0)%5===0)return'shape-clip shape-'+SHAPES[(h>>>0)%SHAPES.length];
     return'shape-circle';
   }
   return'shape-clip shape-'+s;
@@ -413,7 +414,7 @@ function loadShapes(){
 
 function makeSwatch(c,idx){
 const el=document.createElement('div');
-const shapeClass=getShapeClass(idx||0);
+const shapeClass=getShapeClass(idx||0,c.code);
 const shapeName=shapeClass.replace('shape-clip shape-','');
 el.className='swatch';
 if(shapeClass.includes('shape-clip'))el.dataset.shape=shapeName;
