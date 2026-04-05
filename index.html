@@ -8,38 +8,41 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#f5f2ee;--surface:#fdfaf7;--border:#e0d8cf;--text:#2a2520;--muted:#9a8f84;--accent:#c1440e}
+  :root{--bg:#faf5f0;--surface:#fff;--border:#e8ddd4;--text:#3a2e26;--muted:#8a7d73;--accent:#d4726a;--accent-soft:#f2c4c0;--pastel-pink:#fce4ec;--pastel-lilac:#ede7f6;--pastel-mint:#e0f2f1;--pastel-peach:#fff3e0}
   body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
-  header{padding:1.75rem 1.5rem 1.1rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.05)}
-  .header-top{display:flex;align-items:baseline;gap:1rem;margin-bottom:.9rem;flex-wrap:wrap}
-  h1{font-family:'Fraunces',serif;font-size:1.65rem;font-weight:600;letter-spacing:-.02em}
-  .subtitle{font-size:.67rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
-  .controls{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center}
-  .ctrl-label{font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:-.2rem}
-  input[type=text]{font-family:'DM Mono',monospace;font-size:.77rem;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.4rem .7rem;color:var(--text);width:210px;outline:none;transition:border-color .15s}
-  input[type=text]:focus{border-color:var(--accent)}
+  header{padding:1.2rem 1.2rem 1rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(180,140,120,.1)}
+  .header-top{display:flex;align-items:baseline;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap}
+  h1{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;letter-spacing:-.02em;color:var(--accent)}
+  .subtitle{font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .controls{display:flex;gap:.6rem;flex-wrap:wrap;align-items:stretch}
+  .ctrl-group{display:flex;align-items:center;gap:.3rem}
+  .ctrl-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500;white-space:nowrap}
+  input[type=text]{font-family:'DM Mono',monospace;font-size:.8rem;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:.45rem .75rem;color:var(--text);width:200px;outline:none;transition:border-color .15s,box-shadow .15s}
+  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   input[type=text]::placeholder{color:var(--muted)}
-  select{font-family:'DM Mono',monospace;font-size:.75rem;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.4rem .5rem;color:var(--text);cursor:pointer;outline:none}
+  select{font-family:'DM Mono',monospace;font-size:.78rem;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:.45rem .5rem;color:var(--text);cursor:pointer;outline:none;transition:border-color .15s}
+  select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .btn-group{display:flex}
-  .tog-btn{font-family:'DM Mono',monospace;font-size:.71rem;background:var(--bg);border:1px solid var(--border);padding:.36rem .58rem;cursor:pointer;color:var(--muted);transition:all .12s;white-space:nowrap;line-height:1}
-  .tog-btn:first-child{border-radius:4px 0 0 4px}
-  .tog-btn:last-child{border-radius:0 4px 4px 0;border-left:none}
+  .tog-btn{font-family:'DM Mono',monospace;font-size:.74rem;background:var(--bg);border:1.5px solid var(--border);padding:.42rem .65rem;cursor:pointer;color:var(--text);transition:all .12s;white-space:nowrap;line-height:1}
+  .tog-btn:first-child{border-radius:8px 0 0 8px}
+  .tog-btn:last-child{border-radius:0 8px 8px 0;border-left:none}
   .tog-btn:not(:first-child):not(:last-child){border-left:none}
-  .tog-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);z-index:1}
-  .count{font-size:.67rem;color:var(--muted);margin-left:auto}
+  .tog-btn:hover{background:var(--pastel-pink)}
+  .tog-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);z-index:1}
+  .count{font-size:.72rem;color:var(--muted);margin-left:auto;white-space:nowrap}
   /* layout */
   .layout{display:flex}
   /* family toolbar */
-  .family-toolbar{display:none;flex-wrap:wrap;gap:.35rem;padding:.55rem 1.1rem;border-bottom:1px solid var(--border);background:var(--surface);align-items:center}
+  .family-toolbar{display:none;flex-wrap:wrap;gap:.4rem;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);background:var(--pastel-lilac);align-items:center}
   .family-toolbar.visible{display:flex}
-  .fam-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .5rem .22rem .32rem;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:.6rem;font-family:'DM Mono',monospace;font-weight:500;color:var(--text);background:var(--surface);transition:all .12s;line-height:1;white-space:nowrap}
-  .fam-chip:hover{border-color:var(--accent)}
+  .fam-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.28rem .55rem .28rem .38rem;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;font-size:.65rem;font-family:'DM Mono',monospace;font-weight:500;color:var(--text);background:var(--surface);transition:all .12s;line-height:1;white-space:nowrap}
+  .fam-chip:hover{border-color:var(--accent);background:var(--pastel-pink)}
   .fam-chip.off{opacity:.35;border-color:transparent}
-  .fam-chip .chip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
+  .fam-chip .chip-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
   .fam-all-none{display:inline-flex;gap:0;margin-right:.3rem}
-  .fam-all-none .tog-btn{font-size:.58rem;padding:.2rem .45rem}
+  .fam-all-none .tog-btn{font-size:.62rem;padding:.25rem .5rem}
   /* print panel */
-  .print-panel{display:none;flex-wrap:wrap;gap:.55rem;padding:.55rem 1.1rem;border-bottom:1px solid var(--border);background:var(--surface);align-items:center}
+  .print-panel{display:none;flex-wrap:wrap;gap:.6rem;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);background:var(--pastel-mint);align-items:center}
   .print-panel.visible{display:flex}
   /* print preview */
   body.print-preview .main{background:#dadada;padding:1.5rem 0}
@@ -68,30 +71,30 @@
   body.label-inside .swatch[data-shape="heart"] .swatch-info{margin-top:-1.8em}
   body.label-inside .swatch[data-shape="bear"] .swatch-info,body.label-inside .swatch[data-shape="cat"] .swatch-info{margin-top:1.8em}
   /* shapes */
-  .color-block{box-shadow:inset 0 0 0 1.5px #2a2520}
+  .color-block{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.1)}
   .shape-circle{border-radius:50%;overflow:hidden}
   .shape-clip{overflow:hidden}
   .color-wrap{position:relative}
   .shape-outline{position:absolute;inset:0;pointer-events:none}
   .shape-outline svg{width:100%;height:100%}
   /* main */
-  .main{flex:1;min-width:0;background:#fff}
+  .main{flex:1;min-width:0;background:var(--surface)}
   .group-section{scroll-margin-top:125px}
-  .group-header{padding:.6rem 1.1rem .4rem;display:flex;align-items:center;gap:.45rem}
-  .group-title{font-family:'Fraunces',serif;font-size:.85rem;font-weight:600}
-  .group-count{font-size:.63rem;color:var(--muted);margin-left:auto}
+  .group-header{padding:.65rem 1.1rem .45rem;display:flex;align-items:center;gap:.45rem;background:var(--pastel-peach);border-bottom:1px solid var(--border)}
+  .group-title{font-family:'Fraunces',serif;font-size:.9rem;font-weight:600;color:var(--text)}
+  .group-count{font-size:.68rem;color:var(--muted);margin-left:auto}
   /* grid */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:1px;background:#fff}
-  .swatch{background:#fff;cursor:pointer;position:relative;display:flex;flex-direction:column;transition:transform .12s;z-index:1}
-  .swatch:hover{transform:scale(1.05);z-index:10;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:1px;background:var(--surface)}
+  .swatch{background:var(--surface);cursor:pointer;position:relative;display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s;z-index:1;border-radius:4px;overflow:hidden}
+  .swatch:hover{transform:scale(1.04);z-index:10;box-shadow:0 6px 20px rgba(180,140,120,.22)}
   .color-block{width:100%;aspect-ratio:1;position:relative}
-  .copy-flash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.59rem;font-weight:500;letter-spacing:.03em;background:rgba(0,0,0,.3);color:#fff;opacity:0;transition:opacity .1s;pointer-events:none}
+  .copy-flash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:500;letter-spacing:.03em;background:rgba(0,0,0,.25);color:#fff;opacity:0;transition:opacity .1s;pointer-events:none;border-radius:4px}
   .swatch:hover .copy-flash{opacity:1}
-  .swatch-info{padding:.32rem .42rem .38rem;text-align:center}
-  .swatch-code{font-size:.61rem;font-weight:500;color:var(--text);letter-spacing:.03em;line-height:1.3}
-  .swatch-name{font-size:.57rem;color:var(--text);line-height:1.35;margin-top:.07rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .swatch-hex{font-size:.55rem;color:var(--text);margin-top:.07rem}
-  .swatch-old{font-size:.53rem;color:var(--text);margin-top:.04rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .swatch-info{padding:.35rem .45rem .4rem;text-align:center}
+  .swatch-code{font-size:.66rem;font-weight:500;color:var(--accent);letter-spacing:.03em;line-height:1.3}
+  .swatch-name{font-size:.62rem;color:var(--text);line-height:1.35;margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .swatch-hex{font-size:.6rem;color:var(--muted);margin-top:.1rem}
+  .swatch-old{font-size:.58rem;color:var(--muted);margin-top:.06rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* list view */
   body.list-view .grid{grid-template-columns:1fr;gap:0;background:none}
   body.list-view .swatch{flex-direction:row;align-items:center;border-bottom:1px solid var(--border)}
@@ -103,107 +106,131 @@
   body.list-view .swatch-hex,body.list-view .swatch-old{margin-top:0}
   .set-toggles .tog-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
   /* toast */
-  .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:var(--bg);font-size:.71rem;padding:.48rem 1rem;border-radius:4px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:999;letter-spacing:.04em}
+  .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:#fff;font-size:.74rem;padding:.55rem 1.1rem;border-radius:10px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:999;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.15)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .no-results{padding:4rem 2rem;text-align:center;color:var(--muted);font-size:.8rem;display:none}
+  .no-results{padding:4rem 2rem;text-align:center;color:var(--muted);font-size:.85rem;display:none}
 </style>
 </head>
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v18</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v19</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
-    <span class="ctrl-label">Search</span>
-    <input type="text" id="search" placeholder="name, code, hex, family…" autocomplete="off">
-    <span class="ctrl-label">Sort</span>
-    <select id="sort">
-      <option value="code">new code</option>
-      <option value="name">name A–Z</option>
-      <option value="hue">hue</option>
-      <option value="brightness">brightness</option>
-      <option value="sat-brt">saturation → brightness</option>
-      <option value="brt-sat">brightness → saturation</option>
-      <option value="hue-brt">hue → brightness</option>
-      <option value="hue-sat">hue → saturation</option>
-      <option value="fam-sat">family → saturation</option>
-      <option value="fam-brt">family → brightness</option>
-      <option value="oldcode">old code</option>
-    </select>
-    <span class="ctrl-label">Set</span>
-    <div class="btn-group set-toggles">
-      <button class="tog-btn active" id="btn-honolulu" onclick="toggleSet('honolulu')">Honolulu</button>
-      <button class="tog-btn" id="btn-oahu" onclick="toggleSet('oahu')">Oahu</button>
-      <button class="tog-btn" id="btn-kaala" onclick="toggleSet('kaala')">Kaala</button>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Search</span>
+      <input type="text" id="search" placeholder="name, code, hex, family…" autocomplete="off">
     </div>
-    <span class="ctrl-label">Group</span>
-    <div class="btn-group">
-      <button class="tog-btn active" id="btn-flat" onclick="setGroup(false)">flat</button>
-      <button class="tog-btn" id="btn-group" onclick="setGroup(true)">by family</button>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Sort</span>
+      <select id="sort">
+        <option value="code">new code</option>
+        <option value="name">name A–Z</option>
+        <option value="hue">hue</option>
+        <option value="brightness">brightness</option>
+        <option value="sat-brt">saturation → brightness</option>
+        <option value="brt-sat">brightness → saturation</option>
+        <option value="hue-brt">hue → brightness</option>
+        <option value="hue-sat">hue → saturation</option>
+        <option value="fam-sat">family → saturation</option>
+        <option value="fam-brt">family → brightness</option>
+        <option value="oldcode">old code</option>
+      </select>
     </div>
-    <span class="ctrl-label">Display</span>
-    <div class="btn-group">
-      <button class="tog-btn active" id="btn-grid" onclick="setView('grid')">▦</button>
-      <button class="tog-btn" id="btn-list" onclick="setView('list')">≡</button>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Set</span>
+      <div class="btn-group set-toggles">
+        <button class="tog-btn active" id="btn-honolulu" onclick="toggleSet('honolulu')">Honolulu</button>
+        <button class="tog-btn" id="btn-oahu" onclick="toggleSet('oahu')">Oahu</button>
+        <button class="tog-btn" id="btn-kaala" onclick="toggleSet('kaala')">Kaala</button>
+      </div>
     </div>
-    <button class="tog-btn" id="btn-print" onclick="togglePrintPanel()" style="margin-left:.3rem">Print Preview</button>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Group</span>
+      <div class="btn-group">
+        <button class="tog-btn active" id="btn-flat" onclick="setGroup(false)">flat</button>
+        <button class="tog-btn" id="btn-group" onclick="setGroup(true)">by family</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Display</span>
+      <div class="btn-group">
+        <button class="tog-btn active" id="btn-grid" onclick="setView('grid')">▦</button>
+        <button class="tog-btn" id="btn-list" onclick="setView('list')">≡</button>
+      </div>
+    </div>
+    <button class="tog-btn" id="btn-print" onclick="togglePrintPanel()" style="border-radius:8px">Print Preview</button>
     <span class="count" id="count">364 shown</span>
   </div>
 </header>
 <div class="family-toolbar" id="familyToolbar"></div>
 <div class="print-panel" id="printPanel">
-  <span class="ctrl-label">Page</span>
-  <select id="pageSize" onchange="setPrintSetting('pageSize',this.value)">
-    <option value="card">Card 2.5 × 3.5 in</option>
-    <option value="a5">A5 5.8 × 8.3 in</option>
-    <option value="letter" selected>Letter 8.5 × 11 in</option>
-    <option value="a4">A4 8.3 × 11.7 in</option>
-    <option value="legal">Legal 8.5 × 14 in</option>
-    <option value="tabloid">Tabloid 11 × 17 in</option>
-  </select>
-  <span class="ctrl-label">Filled</span>
-  <div class="btn-group">
-    <button class="tog-btn active" id="btn-filled-yes" onclick="toggleFilled(true)">Yes</button>
-    <button class="tog-btn" id="btn-filled-no" onclick="toggleFilled(false)">No</button>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Page</span>
+    <select id="pageSize" onchange="setPrintSetting('pageSize',this.value)">
+      <option value="card">Card 2.5 × 3.5 in</option>
+      <option value="a5">A5 5.8 × 8.3 in</option>
+      <option value="letter" selected>Letter 8.5 × 11 in</option>
+      <option value="a4">A4 8.3 × 11.7 in</option>
+      <option value="legal">Legal 8.5 × 14 in</option>
+      <option value="tabloid">Tabloid 11 × 17 in</option>
+    </select>
   </div>
-  <span class="ctrl-label">Label</span>
-  <select id="labelPos" onchange="setLabelPos(this.value)">
-    <option value="below" selected>Below</option>
-    <option value="above">Above</option>
-    <option value="left">Left</option>
-    <option value="right">Right</option>
-    <option value="inside">Inside</option>
-    <option value="none">None</option>
-  </select>
-  <span class="ctrl-label">Label Info</span>
-  <div class="btn-group">
-    <button class="tog-btn active" id="btn-li-code" onclick="toggleLabelInfo('code')">New Code</button>
-    <button class="tog-btn active" id="btn-li-name" onclick="toggleLabelInfo('name')">Color Name</button>
-    <button class="tog-btn active" id="btn-li-hex" onclick="toggleLabelInfo('hex')">Color Hex</button>
-    <button class="tog-btn active" id="btn-li-old" onclick="toggleLabelInfo('old')">Old Code</button>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Filled</span>
+    <div class="btn-group">
+      <button class="tog-btn active" id="btn-filled-yes" onclick="toggleFilled(true)">Yes</button>
+      <button class="tog-btn" id="btn-filled-no" onclick="toggleFilled(false)">No</button>
+    </div>
   </div>
-  <span class="ctrl-label">Shape</span>
-  <select id="swatchShape" onchange="setShape(this.value)">
-    <option value="square" selected>Square</option>
-    <option value="circle">Circle</option>
-    <option value="heart">Heart</option>
-    <option value="puppy">Puppy</option>
-    <option value="cat">Cat</option>
-    <option value="bear">Bear</option>
-    <option value="tomato">Tomato</option>
-    <option value="mixed">Mixed</option>
-  </select>
-  <span class="ctrl-label">Spacing</span>
-  <div class="btn-group" id="spacingGroup">
-    <button class="tog-btn active" id="btn-sp-close" onclick="setSpacing('close')">Close</button>
-    <button class="tog-btn" id="btn-sp-medium" onclick="setSpacing('medium')">Medium</button>
-    <button class="tog-btn" id="btn-sp-wide" onclick="setSpacing('wide')">Wide</button>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Label</span>
+    <select id="labelPos" onchange="setLabelPos(this.value)">
+      <option value="below" selected>Below</option>
+      <option value="above">Above</option>
+      <option value="left">Left</option>
+      <option value="right">Right</option>
+      <option value="inside">Inside</option>
+      <option value="none">None</option>
+    </select>
   </div>
-  <span class="ctrl-label">Force 1 Page</span>
-  <div class="btn-group">
-    <button class="tog-btn active" id="btn-f1p-off" onclick="setForce1Page(false)">Off</button>
-    <button class="tog-btn" id="btn-f1p-on" onclick="setForce1Page(true)">On</button>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Info</span>
+    <div class="btn-group">
+      <button class="tog-btn active" id="btn-li-code" onclick="toggleLabelInfo('code')">Code</button>
+      <button class="tog-btn active" id="btn-li-name" onclick="toggleLabelInfo('name')">Name</button>
+      <button class="tog-btn active" id="btn-li-hex" onclick="toggleLabelInfo('hex')">Hex</button>
+      <button class="tog-btn active" id="btn-li-old" onclick="toggleLabelInfo('old')">Old</button>
+    </div>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Shape</span>
+    <select id="swatchShape" onchange="setShape(this.value)">
+      <option value="square" selected>Square</option>
+      <option value="circle">Circle</option>
+      <option value="heart">Heart</option>
+      <option value="puppy">Puppy</option>
+      <option value="cat">Cat</option>
+      <option value="bear">Bear</option>
+      <option value="tomato">Tomato</option>
+      <option value="mixed">Mixed</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Spacing</span>
+    <div class="btn-group" id="spacingGroup">
+      <button class="tog-btn active" id="btn-sp-close" onclick="setSpacing('close')">Close</button>
+      <button class="tog-btn" id="btn-sp-medium" onclick="setSpacing('medium')">Medium</button>
+      <button class="tog-btn" id="btn-sp-wide" onclick="setSpacing('wide')">Wide</button>
+    </div>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Force 1 Page</span>
+    <div class="btn-group">
+      <button class="tog-btn active" id="btn-f1p-off" onclick="setForce1Page(false)">Off</button>
+      <button class="tog-btn" id="btn-f1p-on" onclick="setForce1Page(true)">On</button>
+    </div>
   </div>
 </div>
 <svg style="position:absolute;width:0;height:0"><defs id="shapeDefs"></defs></svg>
