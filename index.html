@@ -116,7 +116,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v21</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v22</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -456,7 +456,14 @@ function makePages(displayColors){
   const cw=dims.w-dims.pad*2, ch=dims.h-dims.pad*2;
   const lp=printSettings.labelPos;
   const blockH=112;
-  const labelH=(lp==='left'||lp==='right'||lp==='none'||lp==='inside')?0:40;
+  let labelH=0;
+  if(lp==='below'||lp==='above'){
+    const li=printSettings.labelInfo;
+    const lineH=14;
+    let lines=0;
+    if(li.code)lines++;if(li.name)lines++;if(li.hex)lines++;if(li.old)lines++;
+    labelH=lines>0?12+lines*lineH:0; // 12px padding + lines
+  }
   const swH=blockH+labelH;
   const swW=(lp==='left'||lp==='right')?200:112;
   const gapPct=printSettings.force1Page?0:printSettings.spacing==='wide'?0.03:printSettings.spacing==='medium'?0.015:0;
