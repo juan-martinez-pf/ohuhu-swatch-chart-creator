@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <clipPath id="shape-bee" clipPathUnits="objectBoundingBox">
+  <clipPath id="shape-tomato" clipPathUnits="objectBoundingBox">
     <path transform="scale(0.01)" d="M30 15 C20 5 15 2 25 2 C32 2 38 8 40 14 C43 8 47 5 50 5 C53 5 57 8 60 14 C62 8 68 2 75 2 C85 2 80 5 70 15 C82 20 92 32 95 48 C98 62 92 78 82 88 C72 96 60 98 50 98 C40 98 28 96 18 88 C8 78 2 62 5 48 C8 32 18 20 30 15Z"/>
   </clipPath>
 </svg>
