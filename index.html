@@ -46,7 +46,8 @@
   /* print preview */
   body.print-preview .main{background:#dadada;padding:1.5rem 0}
   body.print-preview .layout{background:#dadada}
-  .page{background:#fff;margin:1rem auto;box-shadow:0 2px 8px rgba(0,0,0,.2);overflow:hidden;padding:.4in;position:relative}
+  .page{background:#fff;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.2);overflow:hidden;padding:.4in;position:relative;transform-origin:top center}
+  .page-wrap{margin:1rem auto;overflow:hidden}
   .page .grid{background:#fff}
   .page .swatch{background:#fff;border-radius:0}
   .page .group-header{background:#fff;border-bottom:none}
@@ -115,7 +116,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v25</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v26</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -527,6 +528,7 @@ function makePages(displayColors){
   // We know the layout, so rebuild using the same logic but creating actual elements
   const frag=document.createDocumentFragment();
 
+  const viewW=document.querySelector('.main').clientWidth-32;
   if(printSettings.force1Page){
     const pg=document.createElement('div');pg.className='page';
     pg.style.width=dims.w+'px';pg.style.height=dims.h+'px';
@@ -534,13 +536,22 @@ function makePages(displayColors){
     const grid=makeGrid(allSwatches,0);
     const neededRows=Math.ceil(allSwatches.length/cols);
     const neededH=neededRows*(swH+1);
-    const scale=Math.min(1,ch/neededH,cw/(cols*(swW+1)));
+    const contentScale=Math.min(1,ch/neededH,cw/(cols*(swW+1)));
     grid.style.transformOrigin='top left';
-    grid.style.transform='scale('+scale+')';
-    grid.style.width=(cw/scale)+'px';
+    grid.style.transform='scale('+contentScale+')';
+    grid.style.width=(cw/contentScale)+'px';
     pg.appendChild(grid);
-    pg.innerHTML+='<div class="page-num">Page 1 of 1</div>';
-    frag.appendChild(pg);
+    const f1pNum=document.createElement('div');f1pNum.className='page-num';f1pNum.textContent='Page 1 of 1';
+    pg.appendChild(f1pNum);
+    const wrap=document.createElement('div');wrap.className='page-wrap';
+    const pageScale=Math.min(1,viewW/dims.w);
+    if(pageScale<1){
+      pg.style.transform='scale('+pageScale+')';pg.style.transformOrigin='top center';
+      wrap.style.width=dims.w*pageScale+'px';
+      wrap.style.height=dims.h*pageScale+'px';
+    }
+    wrap.appendChild(pg);
+    frag.appendChild(wrap);
     return frag;
   }
 
@@ -601,12 +612,20 @@ function makePages(displayColors){
   }
   flushSwatches();
 
-  // Add page numbers
+  // Add page numbers + wrap for responsive scaling
   allPages.forEach((pg,idx)=>{
     const num=document.createElement('div');num.className='page-num';
     num.textContent='Page '+(idx+1)+' of '+allPages.length;
     pg.appendChild(num);
-    frag.appendChild(pg);
+    const wrap=document.createElement('div');wrap.className='page-wrap';
+    const scale=Math.min(1,viewW/dims.w);
+    if(scale<1){
+      pg.style.transform='scale('+scale+')';
+      wrap.style.width=dims.w*scale+'px';
+      wrap.style.height=dims.h*scale+'px';
+    }
+    wrap.appendChild(pg);
+    frag.appendChild(wrap);
   });
 
   return frag;
