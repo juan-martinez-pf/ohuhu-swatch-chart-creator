@@ -51,12 +51,11 @@
   body.label-right .swatch{flex-direction:row}
   body.label-right .swatch-info{border-top:none;border-left:1px solid var(--border)}
   body.label-right .color-block{width:60%;aspect-ratio:1}
-  body.label-inside .swatch-info{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.45);border-top:none;padding:.25rem .4rem}
+  body.label-inside .swatch-info{position:absolute;inset:0;background:none;border-top:none;padding:.25rem .4rem;display:flex;flex-direction:column;align-items:center;justify-content:center}
   body.label-inside .swatch{position:relative}
   body.label-inside .color-block{aspect-ratio:1}
-  body.label-inside .swatch-code{color:#fff}
-  body.label-inside .swatch-name{color:rgba(255,255,255,.9)}
-  body.label-inside .swatch-hex,body.label-inside .swatch-old{color:rgba(255,255,255,.7)}
+  body.label-inside .swatch-name{white-space:normal;text-align:center}
+  body.unfilled.label-inside .swatch-code,body.unfilled.label-inside .swatch-name,body.unfilled.label-inside .swatch-hex,body.unfilled.label-inside .swatch-old{color:#2a2520}
   body.label-none .swatch-info{display:none}
   /* shapes */
   .shape-circle{border-radius:50%;overflow:hidden}
@@ -100,7 +99,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v7</span></h1>
+    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v8</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -279,10 +278,11 @@ function updateFamChips(){
 const printSettings={pageSize:'letter',filled:true,labelPos:'below',labelInfo:{code:true,name:true,hex:true,old:true},shape:'square'};
 const SHAPES=['heart','puppy','cat','bear','bee'];
 
+let printPanelOpen=false;
 function togglePrintPanel(){
-  const p=document.getElementById('printPanel');
-  p.classList.toggle('visible');
-  document.getElementById('btn-print').classList.toggle('active',p.classList.contains('visible'));
+  printPanelOpen=!printPanelOpen;
+  document.getElementById('printPanel').classList.toggle('visible',printPanelOpen);
+  document.getElementById('btn-print').classList.toggle('active',printPanelOpen);
 }
 function setPrintSetting(key,val){printSettings[key]=val;}
 function toggleFilled(on){
@@ -294,11 +294,13 @@ function toggleFilled(on){
     printSettings.labelInfo.hex=false;
     document.getElementById('btn-li-hex').classList.remove('active');
   }
+  render();
 }
 function setLabelPos(pos){
   printSettings.labelPos=pos;
-  document.body.className=document.body.className.replace(/\blabel-\S+/g,'');
+  document.body.classList.remove('label-above','label-left','label-right','label-inside','label-none');
   if(pos!=='below')document.body.classList.add('label-'+pos);
+  render();
 }
 function toggleLabelInfo(field){
   printSettings.labelInfo[field]=!printSettings.labelInfo[field];
@@ -339,11 +341,14 @@ const shapeClass=getShapeClass(idx||0);
 const clipStyle=shapeClass.includes('shape-clip')?'clip-path:url(#'+shapeClass.split(' ').pop()+')':'';
 const oldDisplay=activeSets.size===1?'old: '+c.oldCode:Object.entries(c.oldCodes).map(([s,v])=>s.slice(0,3)+': '+v).join(' · ');
 const li=printSettings.labelInfo;
+const isInside=printSettings.labelPos==='inside';
+const insideColor=isInside?(printSettings.filled?textColor(c.hex):'#2a2520'):'';
+const cStyle=insideColor?'style="color:'+insideColor+'"':'';
 let info='';
-if(li.code)info+=`<div class="swatch-code">${c.code}</div>`;
-if(li.name)info+=`<div class="swatch-name">${c.name}</div>`;
-if(li.hex)info+=`<div class="swatch-hex">#${c.hex}</div>`;
-if(li.old)info+=`<div class="swatch-old">${oldDisplay}</div>`;
+if(li.code)info+=`<div class="swatch-code" ${cStyle}>${c.code}</div>`;
+if(li.name)info+=`<div class="swatch-name" ${cStyle}>${c.name}</div>`;
+if(li.hex)info+=`<div class="swatch-hex" ${cStyle}>${c.hex}</div>`;
+if(li.old)info+=`<div class="swatch-old" ${cStyle}>${oldDisplay}</div>`;
 el.innerHTML=`<div class="color-block ${shapeClass}" style="background:#${c.hex};${clipStyle}"><div class="copy-flash">copy #${c.hex}</div></div><div class="swatch-info">${info}</div>`;
 el.addEventListener('click',()=>copyHex(c.hex,c.name));
 return el;
