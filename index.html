@@ -115,7 +115,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v24</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v25</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -556,6 +556,7 @@ function makePages(displayColors){
     const g=document.createElement('div');g.className='grid';
     g.style.gap=gapStyle;
     g.style.gridTemplateColumns=gridColStyle;
+    if(curPage.children.length>0)g.style.marginTop=gapStyle;
     swBuf.forEach(c=>g.appendChild(makeSwatch(c,c._flowIdx||0)));
     curPage.appendChild(g);
     swBuf=[];
