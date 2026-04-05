@@ -32,7 +32,7 @@
   /* layout */
   .layout{display:flex}
   /* family toolbar */
-  .family-toolbar{display:none;flex-wrap:wrap;gap:.4rem;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);background:var(--pastel-lilac);align-items:center}
+  .family-toolbar{display:none;flex-wrap:wrap;gap:.4rem;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);background:var(--pastel-lilac);align-items:center;position:sticky;z-index:90}
   .family-toolbar.visible{display:flex}
   .fam-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.28rem .55rem .28rem .38rem;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;font-size:.65rem;font-family:'DM Mono',monospace;font-weight:500;color:var(--text);background:var(--surface);transition:all .12s;line-height:1;white-space:nowrap}
   .fam-chip:hover{border-color:var(--accent);background:var(--pastel-pink)}
@@ -41,7 +41,7 @@
   .fam-all-none{display:inline-flex;gap:0;margin-right:.3rem}
   .fam-all-none .tog-btn{font-size:.62rem;padding:.25rem .5rem}
   /* print panel */
-  .print-panel{display:none;flex-wrap:wrap;gap:.6rem;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);background:var(--pastel-mint);align-items:center}
+  .print-panel{display:none;flex-wrap:wrap;gap:.6rem;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);background:var(--pastel-mint);align-items:center;position:sticky;z-index:89}
   .print-panel.visible{display:flex}
   /* print preview */
   body.print-preview .main{background:#dadada;padding:1.5rem 0}
@@ -116,7 +116,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v27</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v28</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -657,6 +657,15 @@ tb.appendChild(chip);
 });
 }
 
+function updateStickyTops(){
+  const hdr=document.querySelector('header');
+  const tb=document.getElementById('familyToolbar');
+  const pp=document.getElementById('printPanel');
+  const hH=hdr.offsetHeight;
+  let top=hH;
+  if(tb.classList.contains('visible')){tb.style.top=top+'px';top+=tb.offsetHeight;}
+  if(pp.classList.contains('visible')){pp.style.top=top+'px';}
+}
 function render(){
 const content=document.getElementById('content'),noR=document.getElementById('no-results'),tb=document.getElementById('familyToolbar');
 content.innerHTML='';
@@ -698,6 +707,7 @@ if(!grouped){
     content.appendChild(section);
   });
 }
+requestAnimationFrame(updateStickyTops);
 }
 
 document.getElementById('search').addEventListener('input',function(){applyFilters();});
