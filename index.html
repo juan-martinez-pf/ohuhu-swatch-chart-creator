@@ -111,7 +111,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v17</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v18</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -507,13 +507,16 @@ function makePages(displayColors){
   }
 
   // Flow layout pass — build actual pages with elements
+  // Use explicit grid columns to guarantee CSS layout matches JS calculations
+  const gridColStyle='repeat('+cols+','+swW+'px)';
   let curPage=null,cy=0,ci=0,swBuf=[];
   const allPages=[];
 
   function flushSwatches(){
     if(swBuf.length===0)return;
     const g=document.createElement('div');g.className='grid';
-    const gap=getSpacingGap();g.style.gap=gap;
+    g.style.gap=gapNum+'px';
+    g.style.gridTemplateColumns=gridColStyle;
     swBuf.forEach(c=>g.appendChild(makeSwatch(c,0)));
     curPage.appendChild(g);
     swBuf=[];
