@@ -15,6 +15,7 @@
   h1{font-family:'Fraunces',serif;font-size:1.65rem;font-weight:600;letter-spacing:-.02em}
   .subtitle{font-size:.67rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
   .controls{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center}
+  .ctrl-label{font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:-.2rem}
   input[type=text]{font-family:'DM Mono',monospace;font-size:.77rem;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.4rem .7rem;color:var(--text);width:210px;outline:none;transition:border-color .15s}
   input[type=text]:focus{border-color:var(--accent)}
   input[type=text]::placeholder{color:var(--muted)}
@@ -76,11 +77,13 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v5</span></h1>
+    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v6</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
+    <span class="ctrl-label">Search</span>
     <input type="text" id="search" placeholder="name, code, hex, family…" autocomplete="off">
+    <span class="ctrl-label">Sort</span>
     <select id="sort">
       <option value="code">new code</option>
       <option value="name">name A–Z</option>
@@ -94,14 +97,17 @@
       <option value="fam-brt">family → brightness</option>
       <option value="oldcode">old code</option>
     </select>
+    <span class="ctrl-label">Group</span>
     <div class="btn-group">
       <button class="tog-btn active" id="btn-flat" onclick="setGroup(false)">flat</button>
       <button class="tog-btn" id="btn-group" onclick="setGroup(true)">by family</button>
     </div>
+    <span class="ctrl-label">Display</span>
     <div class="btn-group">
       <button class="tog-btn active" id="btn-grid" onclick="setView('grid')">▦</button>
       <button class="tog-btn" id="btn-list" onclick="setView('list')">≡</button>
     </div>
+    <span class="ctrl-label">Page</span>
     <select id="pageSize">
       <option value="card">Card 2.5 × 3.5 in</option>
       <option value="a5">A5 5.8 × 8.3 in</option>
@@ -110,6 +116,7 @@
       <option value="legal">Legal 8.5 × 14 in</option>
       <option value="tabloid">Tabloid 11 × 17 in</option>
     </select>
+    <span class="ctrl-label">Set</span>
     <div class="btn-group set-toggles">
       <button class="tog-btn active" id="btn-honolulu" onclick="toggleSet('honolulu')">Honolulu</button>
       <button class="tog-btn" id="btn-oahu" onclick="toggleSet('oahu')">Oahu</button>
