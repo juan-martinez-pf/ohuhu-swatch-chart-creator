@@ -114,7 +114,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v19</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v20</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -453,9 +453,12 @@ function makePages(displayColors){
   const dims=getPageDimsPx();
   const cw=dims.w-dims.pad*2, ch=dims.h-dims.pad*2;
   const lp=printSettings.labelPos;
-  const swH=(lp==='left'||lp==='right')?50:(lp==='none'||lp==='inside')?112:145;
+  const blockH=112;
+  const labelH=(lp==='left'||lp==='right'||lp==='none'||lp==='inside')?0:40;
+  const swH=blockH+labelH;
   const swW=(lp==='left'||lp==='right')?200:112;
-  const gapNum=printSettings.force1Page?1:printSettings.spacing==='wide'?swW*0.03:printSettings.spacing==='medium'?swW*0.015:1;
+  const gapPct=printSettings.force1Page?0:printSettings.spacing==='wide'?0.03:printSettings.spacing==='medium'?0.015:0;
+  const gapNum=gapPct>0?Math.round(cw*gapPct):1;
   const cols=Math.max(1,Math.floor((cw+gapNum)/(swW+gapNum)));
   const famHdrH=28;
 
@@ -536,15 +539,16 @@ function makePages(displayColors){
   // Flow layout pass — build actual pages with elements
   // Use explicit grid columns to guarantee CSS layout matches JS calculations
   const gridColStyle='repeat('+cols+','+swW+'px)';
-  let curPage=null,cy=0,ci=0,swBuf=[];
+  const gapStyle=gapNum+'px';
+  let curPage=null,cy=0,ci=0,swBuf=[],globalIdx=0;
   const allPages=[];
 
   function flushSwatches(){
     if(swBuf.length===0)return;
     const g=document.createElement('div');g.className='grid';
-    g.style.gap=gapNum+'px';
+    g.style.gap=gapStyle;
     g.style.gridTemplateColumns=gridColStyle;
-    swBuf.forEach(c=>g.appendChild(makeSwatch(c,0)));
+    swBuf.forEach(c=>g.appendChild(makeSwatch(c,c._flowIdx||0)));
     curPage.appendChild(g);
     swBuf=[];
   }
@@ -581,6 +585,7 @@ function makePages(displayColors){
         flushSwatches();
         startPage();
       }
+      item.color._flowIdx=globalIdx++;
       swBuf.push(item.color);
       ci++;
     }
