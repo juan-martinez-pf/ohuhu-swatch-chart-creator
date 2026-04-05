@@ -28,16 +28,15 @@
   .count{font-size:.67rem;color:var(--muted);margin-left:auto}
   /* layout */
   .layout{display:flex}
-  .family-nav{width:192px;min-width:192px;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:108px;height:calc(100vh - 108px);overflow-y:auto;display:none;flex-direction:column;scrollbar-width:thin}
-  .family-nav.visible{display:flex}
-  .fam-item{display:flex;align-items:center;gap:.45rem;padding:.45rem .65rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;text-decoration:none}
-  .fam-item:hover{background:var(--bg)}
-  .fam-item.active{background:var(--bg);box-shadow:inset 3px 0 0 var(--accent)}
-  .fam-swatch{width:15px;height:15px;border-radius:3px;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
-  .fam-label{font-size:.63rem;line-height:1.3;color:var(--text);min-width:0}
-  .fam-code{font-weight:500;font-size:.67rem}
-  .fam-desc{font-size:.57rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fam-count{font-size:.57rem;color:var(--muted);margin-left:auto;flex-shrink:0}
+  /* family toolbar */
+  .family-toolbar{display:none;flex-wrap:wrap;gap:.35rem;padding:.55rem 1.1rem;border-bottom:1px solid var(--border);background:var(--surface);align-items:center}
+  .family-toolbar.visible{display:flex}
+  .fam-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .5rem .22rem .32rem;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:.6rem;font-family:'DM Mono',monospace;font-weight:500;color:var(--text);background:var(--surface);transition:all .12s;line-height:1;white-space:nowrap}
+  .fam-chip:hover{border-color:var(--accent)}
+  .fam-chip.off{opacity:.35;border-color:transparent}
+  .fam-chip .chip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
+  .fam-all-none{display:inline-flex;gap:0;margin-right:.3rem}
+  .fam-all-none .tog-btn{font-size:.58rem;padding:.2rem .45rem}
   /* main */
   .main{flex:1;min-width:0}
   .group-section{scroll-margin-top:125px}
@@ -77,7 +76,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v1</span></h1>
+    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v2</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -105,8 +104,8 @@
     <span class="count" id="count">364 shown</span>
   </div>
 </header>
+<div class="family-toolbar" id="familyToolbar"></div>
 <div class="layout">
-  <nav class="family-nav" id="familyNav"></nav>
   <div class="main">
     <div id="content"></div>
     <div class="no-results" id="no-results">no colors match</div>
@@ -127,6 +126,7 @@ function textColor(h){return brightness(h)>155?'#2a2520':'#fff';}
 function sortColors(arr,by){return[...arr].sort((a,b)=>{if(by==='name')return a.name.localeCompare(b.name);if(by==='hue')return hexToHSL(a.hex).h-hexToHSL(b.hex).h;if(by==='brightness')return brightness(b.hex)-brightness(a.hex);if(by==='oldcode')return a.oldCode.localeCompare(b.oldCode);return a.code.localeCompare(b.code);});}
 
 let activeSets=new Set(['honolulu']);
+let activeFamilies=new Set(Object.keys(FAMILIES));
 let filtered=[...COLORS].filter(c=>c.sets.some(s=>activeSets.has(s)));
 let currentSort='code',grouped=false;
 
@@ -157,6 +157,22 @@ function updateSubtitle(){
   document.getElementById('subtitle').textContent=setNames.join(' + ')+' · '+base.length+' colors';
 }
 
+function toggleFamily(fam){
+  if(activeFamilies.has(fam))activeFamilies.delete(fam);else activeFamilies.add(fam);
+  updateFamChips();
+  applyFilters();
+}
+function setAllFamilies(on){
+  if(on)activeFamilies=new Set(Object.keys(FAMILIES));else activeFamilies.clear();
+  updateFamChips();
+  applyFilters();
+}
+function updateFamChips(){
+  document.querySelectorAll('.fam-chip').forEach(el=>{
+    el.classList.toggle('off',!activeFamilies.has(el.dataset.fam));
+  });
+}
+
 function makeSwatch(c){
 const el=document.createElement('div');
 el.className='swatch';
@@ -172,26 +188,46 @@ return g;
 }
 function famRep(colors){const s=[...colors].sort((a,b)=>brightness(a.hex)-brightness(b.hex));return s[Math.floor(s.length/2)].hex;}
 
-function render(){
-const content=document.getElementById('content'),noR=document.getElementById('no-results'),nav=document.getElementById('familyNav');
-content.innerHTML='';nav.innerHTML='';
-if(filtered.length===0){noR.style.display='block';document.getElementById('count').textContent='0 shown';nav.classList.remove('visible');return;}
-noR.style.display='none';
-document.getElementById('count').textContent=`${filtered.length} shown`;
-if(!grouped){nav.classList.remove('visible');content.appendChild(makeGrid(filtered));return;}
-nav.classList.add('visible');
-const famMap={};
-filtered.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
-const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
-// sidebar
+function buildFamilyToolbar(){
+const tb=document.getElementById('familyToolbar');
+tb.innerHTML='';
+// All / None buttons
+const allNone=document.createElement('div');allNone.className='fam-all-none btn-group';
+const btnAll=document.createElement('button');btnAll.className='tog-btn';btnAll.textContent='All';btnAll.onclick=()=>setAllFamilies(true);
+const btnNone=document.createElement('button');btnNone.className='tog-btn';btnNone.textContent='None';btnNone.onclick=()=>setAllFamilies(false);
+allNone.appendChild(btnAll);allNone.appendChild(btnNone);
+tb.appendChild(allNone);
+// chips for each family present in filtered data
+const famSet=new Set(filtered.map(c=>c.family));
+const famOrder=[...famSet].sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
 famOrder.forEach(fam=>{
 const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
-const rep=famRep(famMap[fam]);
-const item=document.createElement('a');item.className='fam-item';item.href=`#fam-${fam}`;
-item.innerHTML=`<div class="fam-swatch" style="background:#${rep}"></div><div class="fam-label"><div class="fam-code">${meta.label}</div><div class="fam-desc">${meta.desc}</div></div><span class="fam-count">${famMap[fam].length}</span>`;
-nav.appendChild(item);
+const colors=filtered.filter(c=>c.family===fam);
+const rep=famRep(colors);
+const chip=document.createElement('button');
+chip.className='fam-chip'+(activeFamilies.has(fam)?'':' off');
+chip.dataset.fam=fam;
+chip.innerHTML=`<span class="chip-dot" style="background:#${rep}"></span>${meta.label}`;
+chip.onclick=()=>toggleFamily(fam);
+tb.appendChild(chip);
 });
-// sections
+}
+
+function render(){
+const content=document.getElementById('content'),noR=document.getElementById('no-results'),tb=document.getElementById('familyToolbar');
+content.innerHTML='';
+if(filtered.length===0){noR.style.display='block';document.getElementById('count').textContent='0 shown';tb.classList.remove('visible');return;}
+noR.style.display='none';
+if(!grouped){tb.classList.remove('visible');document.getElementById('count').textContent=`${filtered.length} shown`;content.appendChild(makeGrid(filtered));return;}
+// grouped mode — build toolbar and filter by active families
+tb.classList.add('visible');
+buildFamilyToolbar();
+const visible=filtered.filter(c=>activeFamilies.has(c.family));
+document.getElementById('count').textContent=`${visible.length} shown`;
+if(visible.length===0){noR.style.display='block';return;}
+const famMap={};
+visible.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
+const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
 famOrder.forEach(fam=>{
 const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
 const rep=famRep(famMap[fam]);
@@ -201,12 +237,6 @@ hdr.innerHTML=`<div class="group-header-swatch" style="background:#${rep}"></div
 section.appendChild(hdr);section.appendChild(makeGrid(famMap[fam]));
 content.appendChild(section);
 });
-// active scroll spy
-const sections=content.querySelectorAll('.group-section');
-const obs=new IntersectionObserver(entries=>{
-entries.forEach(e=>{if(e.isIntersecting){const id=e.target.id.replace('fam-','');nav.querySelectorAll('.fam-item').forEach(el=>el.classList.toggle('active',el.getAttribute('href')===`#fam-${id}`));}});
-},{threshold:.05,rootMargin:'-110px 0px -65% 0px'});
-sections.forEach(s=>obs.observe(s));
 }
 
 document.getElementById('search').addEventListener('input',function(){applyFilters();});
