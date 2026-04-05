@@ -49,6 +49,8 @@
   body.print-preview .layout{background:#dadada}
   .page{background:#fff;margin:1rem auto;box-shadow:0 2px 8px rgba(0,0,0,.2);overflow:hidden;padding:.4in;position:relative}
   .page .grid{background:#fff}
+  .page .swatch{background:#fff;border-radius:0}
+  .page .group-header{background:#fff;border-bottom:none}
   .page-num{position:absolute;bottom:.2in;right:.4in;font-size:.5rem;color:var(--muted)}
   /* unfilled */
   body.unfilled .color-block{background:#fff !important}
@@ -71,7 +73,7 @@
   body.label-inside .swatch[data-shape="heart"] .swatch-info{margin-top:-1.8em}
   body.label-inside .swatch[data-shape="bear"] .swatch-info,body.label-inside .swatch[data-shape="cat"] .swatch-info{margin-top:1.8em}
   /* shapes */
-  .color-block{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.1)}
+  .color-block{box-shadow:inset 0 0 0 1.5px #2a2520}
   .shape-circle{border-radius:50%;overflow:hidden}
   .shape-clip{overflow:hidden}
   .color-wrap{position:relative}
@@ -91,10 +93,10 @@
   .copy-flash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:500;letter-spacing:.03em;background:rgba(0,0,0,.25);color:#fff;opacity:0;transition:opacity .1s;pointer-events:none;border-radius:4px}
   .swatch:hover .copy-flash{opacity:1}
   .swatch-info{padding:.35rem .45rem .4rem;text-align:center}
-  .swatch-code{font-size:.66rem;font-weight:500;color:var(--accent);letter-spacing:.03em;line-height:1.3}
+  .swatch-code{font-size:.66rem;font-weight:500;color:var(--text);letter-spacing:.03em;line-height:1.3}
   .swatch-name{font-size:.62rem;color:var(--text);line-height:1.35;margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .swatch-hex{font-size:.6rem;color:var(--muted);margin-top:.1rem}
-  .swatch-old{font-size:.58rem;color:var(--muted);margin-top:.06rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .swatch-hex{font-size:.6rem;color:var(--text);margin-top:.1rem}
+  .swatch-old{font-size:.58rem;color:var(--text);margin-top:.06rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* list view */
   body.list-view .grid{grid-template-columns:1fr;gap:0;background:none}
   body.list-view .swatch{flex-direction:row;align-items:center;border-bottom:1px solid var(--border)}
@@ -114,7 +116,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v20</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v21</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
