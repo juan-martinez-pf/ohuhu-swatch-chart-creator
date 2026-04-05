@@ -41,6 +41,12 @@
   /* print panel */
   .print-panel{display:none;flex-wrap:wrap;gap:.55rem;padding:.55rem 1.1rem;border-bottom:1px solid var(--border);background:var(--surface);align-items:center}
   .print-panel.visible{display:flex}
+  /* print preview */
+  body.print-preview .main{background:#dadada;padding:1.5rem 0}
+  body.print-preview .layout{background:#dadada}
+  .page{background:#fff;margin:1rem auto;box-shadow:0 2px 8px rgba(0,0,0,.2);overflow:hidden;padding:.4in;position:relative}
+  .page .grid{background:#fff}
+  .page-num{position:absolute;bottom:.2in;right:.4in;font-size:.5rem;color:var(--muted)}
   /* unfilled */
   body.unfilled .color-block{background:#fff !important}
   /* label positions */
@@ -105,7 +111,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v15</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v16</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -188,6 +194,17 @@
     <option value="tomato">Tomato</option>
     <option value="mixed">Mixed</option>
   </select>
+  <span class="ctrl-label">Spacing</span>
+  <div class="btn-group" id="spacingGroup">
+    <button class="tog-btn active" id="btn-sp-close" onclick="setSpacing('close')">Close</button>
+    <button class="tog-btn" id="btn-sp-medium" onclick="setSpacing('medium')">Medium</button>
+    <button class="tog-btn" id="btn-sp-wide" onclick="setSpacing('wide')">Wide</button>
+  </div>
+  <span class="ctrl-label">Force 1 Page</span>
+  <div class="btn-group">
+    <button class="tog-btn active" id="btn-f1p-off" onclick="setForce1Page(false)">Off</button>
+    <button class="tog-btn" id="btn-f1p-on" onclick="setForce1Page(true)">On</button>
+  </div>
 </div>
 <svg style="position:absolute;width:0;height:0"><defs id="shapeDefs"></defs></svg>
 <div class="layout">
@@ -281,7 +298,7 @@ function updateFamChips(){
 }
 
 // print settings
-const printSettings={pageSize:'letter',filled:true,labelPos:'below',labelInfo:{code:true,name:true,hex:true,old:true},shape:'square'};
+const printSettings={pageSize:'letter',filled:true,labelPos:'below',labelInfo:{code:true,name:true,hex:true,old:true},shape:'square',spacing:'close',force1Page:false};
 const SHAPES=['heart','puppy','cat','bear','tomato'];
 
 let printPanelOpen=false;
@@ -289,8 +306,10 @@ function togglePrintPanel(){
   printPanelOpen=!printPanelOpen;
   document.getElementById('printPanel').classList.toggle('visible',printPanelOpen);
   document.getElementById('btn-print').classList.toggle('active',printPanelOpen);
+  document.body.classList.toggle('print-preview',printPanelOpen);
+  render();
 }
-function setPrintSetting(key,val){printSettings[key]=val;}
+function setPrintSetting(key,val){printSettings[key]=val;render();}
 function toggleFilled(on){
   printSettings.filled=on;
   document.getElementById('btn-filled-yes').classList.toggle('active',on);
@@ -315,6 +334,21 @@ function toggleLabelInfo(field){
 }
 function setShape(shape){
   printSettings.shape=shape;
+  render();
+}
+function setSpacing(sp){
+  printSettings.spacing=sp;
+  document.getElementById('btn-sp-close').classList.toggle('active',sp==='close');
+  document.getElementById('btn-sp-medium').classList.toggle('active',sp==='medium');
+  document.getElementById('btn-sp-wide').classList.toggle('active',sp==='wide');
+  render();
+}
+function setForce1Page(on){
+  printSettings.force1Page=on;
+  document.getElementById('btn-f1p-off').classList.toggle('active',!on);
+  document.getElementById('btn-f1p-on').classList.toggle('active',on);
+  document.getElementById('spacingGroup').style.opacity=on?'.4':'1';
+  document.getElementById('spacingGroup').style.pointerEvents=on?'none':'auto';
   render();
 }
 function getShapeClass(idx){
@@ -370,10 +404,64 @@ el.innerHTML=`<div class="color-wrap"><div class="color-block ${shapeClass}" sty
 el.addEventListener('click',()=>copyHex(c.hex,c.name));
 return el;
 }
-function makeGrid(colors){
+function getSpacingGap(){
+  if(printSettings.force1Page)return'1px';
+  if(printSettings.spacing==='medium')return'1.5%';
+  if(printSettings.spacing==='wide')return'3%';
+  return'1px';
+}
+function makeGrid(colors,startIdx){
 const g=document.createElement('div');g.className='grid';
-sortColors(colors,currentSort).forEach((c,i)=>g.appendChild(makeSwatch(c,i)));
+const gap=printPanelOpen?getSpacingGap():'1px';
+g.style.gap=gap;
+const sorted=sortColors(colors,currentSort);
+sorted.forEach((c,i)=>g.appendChild(makeSwatch(c,(startIdx||0)+i)));
 return g;
+}
+function getPageDimsPx(){
+  const ps=PAGE_SIZES[printSettings.pageSize]||PAGE_SIZES.letter;
+  return{w:ps.w*96,h:ps.h*96,pad:0.4*96};
+}
+function makePages(allColors){
+  const dims=getPageDimsPx();
+  const cw=dims.w-dims.pad*2, ch=dims.h-dims.pad*2;
+  // estimate swatch size: label below ~140px tall, 112px wide; inside/none ~112px
+  const lp=printSettings.labelPos;
+  const swH=(lp==='left'||lp==='right')?50:(lp==='none'||lp==='inside')?112:145;
+  const swW=(lp==='left'||lp==='right')?200:112;
+  const gap=printSettings.force1Page?1:printSettings.spacing==='wide'?swW*0.03:printSettings.spacing==='medium'?swW*0.015:1;
+  const cols=Math.max(1,Math.floor((cw+gap)/(swW+gap)));
+  const rows=Math.max(1,Math.floor((ch+gap)/(swH+gap)));
+  const perPage=cols*rows;
+  const sorted=sortColors(allColors,currentSort);
+  const frag=document.createDocumentFragment();
+
+  if(printSettings.force1Page){
+    const page=document.createElement('div');page.className='page';
+    page.style.width=dims.w+'px';page.style.height=dims.h+'px';
+    const grid=makeGrid(allColors,0);
+    // scale to fit
+    const neededRows=Math.ceil(sorted.length/cols);
+    const neededH=neededRows*(swH+1);
+    const scale=Math.min(1,ch/neededH,cw/(cols*(swW+1)));
+    grid.style.transformOrigin='top left';
+    grid.style.transform='scale('+scale+')';
+    grid.style.width=(cw/scale)+'px';
+    page.appendChild(grid);
+    page.innerHTML+='<div class="page-num">Page 1 of 1</div>';
+    frag.appendChild(page);
+  } else {
+    const totalPages=Math.ceil(sorted.length/perPage);
+    for(let p=0;p<totalPages;p++){
+      const page=document.createElement('div');page.className='page';
+      page.style.width=dims.w+'px';page.style.height=dims.h+'px';
+      const chunk=sorted.slice(p*perPage,(p+1)*perPage);
+      page.appendChild(makeGrid(chunk,p*perPage));
+      page.innerHTML+='<div class="page-num">Page '+(p+1)+' of '+totalPages+'</div>';
+      frag.appendChild(page);
+    }
+  }
+  return frag;
 }
 function famRep(colors){const s=[...colors].sort((a,b)=>brightness(a.hex)-brightness(b.hex));return s[Math.floor(s.length/2)].hex;}
 
@@ -407,25 +495,55 @@ const content=document.getElementById('content'),noR=document.getElementById('no
 content.innerHTML='';
 if(filtered.length===0){noR.style.display='block';document.getElementById('count').textContent='0 shown';tb.classList.remove('visible');return;}
 noR.style.display='none';
-if(!grouped){tb.classList.remove('visible');document.getElementById('count').textContent=`${filtered.length} shown`;content.appendChild(makeGrid(filtered));return;}
-// grouped mode — build toolbar and filter by active families
-tb.classList.add('visible');
-buildFamilyToolbar();
-const visible=filtered.filter(c=>activeFamilies.has(c.family));
-document.getElementById('count').textContent=`${visible.length} shown`;
-if(visible.length===0){noR.style.display='block';return;}
-const famMap={};
-visible.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
-const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
-famOrder.forEach(fam=>{
-const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
-const rep=famRep(famMap[fam]);
-const section=document.createElement('div');section.className='group-section';section.id=`fam-${fam}`;
-const hdr=document.createElement('div');hdr.className='group-header';
-hdr.innerHTML=`<div class="group-title">${meta.label} <span style="font-weight:300;font-size:.82rem;font-family:'DM Mono',monospace"> ${meta.desc}</span></div><span class="group-count">${famMap[fam].length} colors</span>`;
-section.appendChild(hdr);section.appendChild(makeGrid(famMap[fam]));
-content.appendChild(section);
-});
+
+// get the colors to display
+let displayColors;
+if(!grouped){
+  tb.classList.remove('visible');
+  displayColors=filtered;
+} else {
+  tb.classList.add('visible');
+  buildFamilyToolbar();
+  displayColors=filtered.filter(c=>activeFamilies.has(c.family));
+}
+document.getElementById('count').textContent=`${displayColors.length} shown`;
+if(displayColors.length===0){noR.style.display='block';return;}
+
+// print preview — paged layout
+if(printPanelOpen){
+  if(!grouped){
+    content.appendChild(makePages(displayColors));
+  } else {
+    const famMap={};
+    displayColors.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
+    const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
+    famOrder.forEach(fam=>{
+      const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
+      const hdr=document.createElement('div');hdr.className='group-header';
+      hdr.innerHTML=`<div class="group-title">${meta.label} <span style="font-weight:300;font-size:.82rem;font-family:'DM Mono',monospace"> ${meta.desc}</span></div><span class="group-count">${famMap[fam].length} colors</span>`;
+      content.appendChild(hdr);
+      content.appendChild(makePages(famMap[fam]));
+    });
+  }
+  return;
+}
+
+// normal mode — free-flowing grid
+if(!grouped){
+  content.appendChild(makeGrid(displayColors));
+} else {
+  const famMap={};
+  displayColors.forEach(c=>{(famMap[c.family]=famMap[c.family]||[]).push(c);});
+  const famOrder=Object.keys(famMap).sort((a,b)=>((FAMILIES[a]||{order:99}).order)-((FAMILIES[b]||{order:99}).order));
+  famOrder.forEach(fam=>{
+    const meta=FAMILIES[fam]||{label:fam,desc:'',order:99};
+    const section=document.createElement('div');section.className='group-section';section.id=`fam-${fam}`;
+    const hdr=document.createElement('div');hdr.className='group-header';
+    hdr.innerHTML=`<div class="group-title">${meta.label} <span style="font-weight:300;font-size:.82rem;font-family:'DM Mono',monospace"> ${meta.desc}</span></div><span class="group-count">${famMap[fam].length} colors</span>`;
+    section.appendChild(hdr);section.appendChild(makeGrid(famMap[fam]));
+    content.appendChild(section);
+  });
+}
 }
 
 document.getElementById('search').addEventListener('input',function(){applyFilters();});
