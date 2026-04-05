@@ -49,7 +49,9 @@
   .page{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);overflow:hidden;padding:.4in;position:relative;transform-origin:top left}
   .page-wrap{margin:1rem auto;overflow:hidden}
   .page .grid{background:#fff}
-  .page .swatch{background:#fff;border-radius:0}
+  .page .swatch{background:#fff;border-radius:0;cursor:default;pointer-events:none}
+  .page .swatch:hover{transform:none;box-shadow:none}
+  .page .copy-flash{display:none}
   .page .group-header{background:#fff;border-bottom:none}
   .page-num{position:absolute;bottom:.2in;right:.4in;font-size:.5rem;color:var(--muted)}
   /* unfilled */
@@ -116,7 +118,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v29</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v30</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -431,7 +433,7 @@ if(shapeClass.includes('shape-clip')&&shapePaths[shapeName]){
   outline=`<div class="shape-outline"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="${shapePaths[shapeName]}" fill="none" stroke="#2a2520" stroke-width="1.5"/></svg></div>`;
 }
 el.innerHTML=`<div class="color-wrap"><div class="color-block ${shapeClass}" style="background:#${c.hex};${clipStyle}"><div class="copy-flash">copy #${c.hex}</div></div>${outline}</div><div class="swatch-info">${info}</div>`;
-el.addEventListener('click',()=>copyHex(c.hex,c.name));
+if(!printPanelOpen)el.addEventListener('click',()=>copyHex(c.hex,c.name));
 return el;
 }
 function getSpacingGap(){
