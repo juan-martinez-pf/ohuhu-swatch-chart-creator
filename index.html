@@ -76,7 +76,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v4</span></h1>
+    <h1>Ohuhu Honolulu <span style="font-size:.55em;font-weight:300;color:var(--muted)">v5</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -86,6 +86,12 @@
       <option value="name">name A–Z</option>
       <option value="hue">hue</option>
       <option value="brightness">brightness</option>
+      <option value="sat-brt">saturation → brightness</option>
+      <option value="brt-sat">brightness → saturation</option>
+      <option value="hue-brt">hue → brightness</option>
+      <option value="hue-sat">hue → saturation</option>
+      <option value="fam-sat">family → saturation</option>
+      <option value="fam-brt">family → brightness</option>
       <option value="oldcode">old code</option>
     </select>
     <div class="btn-group">
@@ -142,7 +148,20 @@ COLORS.forEach(c=>c.family=getFamily(c.code));
 function hexToHSL(h){let r=parseInt(h.slice(0,2),16)/255,g=parseInt(h.slice(2,4),16)/255,b=parseInt(h.slice(4,6),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let hh,s,l=(mx+mn)/2;if(mx===mn){hh=s=0;}else{const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:hh=((g-b)/d+(g<b?6:0))/6;break;case g:hh=((b-r)/d+2)/6;break;case b:hh=((r-g)/d+4)/6;break;}}return{h:hh*360,s:s*100,l:l*100};}
 function brightness(h){const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return(r*299+g*587+b*114)/1000;}
 function textColor(h){return brightness(h)>155?'#2a2520':'#fff';}
-function sortColors(arr,by){return[...arr].sort((a,b)=>{if(by==='name')return a.name.localeCompare(b.name);if(by==='hue')return hexToHSL(a.hex).h-hexToHSL(b.hex).h;if(by==='brightness')return brightness(b.hex)-brightness(a.hex);if(by==='oldcode')return a.oldCode.localeCompare(b.oldCode);return a.code.localeCompare(b.code);});}
+function codeSat(c){const m=c.code.match(/^[A-Za-z]+(\d)/);return m?parseInt(m[1]):0;}
+function codeBrt(c){const m=c.code.match(/^[A-Za-z]+\d(\d+)$/);return m?parseInt(m[1]):0;}
+function sortColors(arr,by){return[...arr].sort((a,b)=>{
+if(by==='name')return a.name.localeCompare(b.name);
+if(by==='hue')return hexToHSL(a.hex).h-hexToHSL(b.hex).h;
+if(by==='brightness')return brightness(b.hex)-brightness(a.hex);
+if(by==='oldcode')return a.oldCode.localeCompare(b.oldCode);
+if(by==='sat-brt')return codeSat(a)-codeSat(b)||codeBrt(a)-codeBrt(b);
+if(by==='brt-sat')return codeBrt(a)-codeBrt(b)||codeSat(a)-codeSat(b);
+if(by==='hue-brt')return hexToHSL(a.hex).h-hexToHSL(b.hex).h||brightness(b.hex)-brightness(a.hex);
+if(by==='hue-sat'){const h=hexToHSL(a.hex).h-hexToHSL(b.hex).h;return h||hexToHSL(b.hex).s-hexToHSL(a.hex).s;}
+if(by==='fam-sat')return((FAMILIES[a.family]||{order:99}).order)-((FAMILIES[b.family]||{order:99}).order)||codeSat(a)-codeSat(b)||codeBrt(a)-codeBrt(b);
+if(by==='fam-brt')return((FAMILIES[a.family]||{order:99}).order)-((FAMILIES[b.family]||{order:99}).order)||codeBrt(a)-codeBrt(b)||codeSat(a)-codeSat(b);
+return a.code.localeCompare(b.code);});}
 
 let activeSets=new Set(['honolulu']);
 let activeFamilies=new Set(Object.keys(FAMILIES));
