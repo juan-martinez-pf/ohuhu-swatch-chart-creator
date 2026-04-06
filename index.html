@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v37</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v38</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -542,13 +542,31 @@ function makePages(displayColors){
     const pg=document.createElement('div');pg.className='page';
     pg.style.width=dims.w+'px';pg.style.height=dims.h+'px';
     const allSwatches=items.filter(it=>it.type==='swatch').map(it=>it.color);
+    const n=allSwatches.length;
+    if(n===0){frag.appendChild(pg);return frag;}
+    // Find optimal swatch size: largest that fits all on one page, capped at selected SIZE
+    const maxSw=swW;
+    const labelRatio=(lp==='below'||lp==='above')?(function(){const li=printSettings.labelInfo;let lines=0;if(li.code)lines++;if(li.name)lines++;if(li.hex)lines++;if(li.old)lines++;return lines>0?0.1+lines*0.125:0;})():0;
+    const isLR=(lp==='left'||lp==='right');
+    let bestSw=1;
+    // Binary search for largest swatch width that fits
+    let lo=4,hi=maxSw;
+    while(lo<=hi){
+      const mid=Math.floor((lo+hi)/2);
+      const testW=isLR?Math.round(mid*1.78):mid;
+      const testH=mid+Math.round(mid*labelRatio);
+      const c=Math.max(1,Math.floor(cw/(testW+1)));
+      const r=Math.ceil(n/c);
+      if(r*(testH+1)<=ch&&c*(testW+1)<=cw){bestSw=mid;lo=mid+1;}
+      else{hi=mid-1;}
+    }
+    const optW=isLR?Math.round(bestSw*1.78):bestSw;
+    const optH=bestSw+Math.round(bestSw*labelRatio);
+    const optCols=Math.max(1,Math.floor(cw/(optW+1)));
     const grid=makeGrid(allSwatches,0,true);
-    const neededRows=Math.ceil(allSwatches.length/cols);
-    const neededH=neededRows*(swH+1);
-    const contentScale=Math.min(1,ch/neededH,cw/(cols*(swW+1)));
-    grid.style.transformOrigin='top left';
-    grid.style.transform='scale('+contentScale+')';
-    grid.style.width=(cw/contentScale)+'px';
+    grid.style.gridTemplateColumns='repeat('+optCols+','+optW+'px)';
+    grid.style.gridAutoRows=optH+'px';
+    grid.style.gap='1px';
     pg.appendChild(grid);
     const f1pNum=document.createElement('div');f1pNum.className='page-num';f1pNum.textContent='Page 1 of 1';
     pg.appendChild(f1pNum);
