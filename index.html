@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v36</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v37</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -441,15 +441,16 @@ if(!printPanelOpen)el.addEventListener('click',()=>copyHex(c.hex,c.name));
 return el;
 }
 function getSpacingGap(){
-  if(printSettings.force1Page)return'1px';
-  if(printSettings.spacing==='medium')return'1.5%';
-  if(printSettings.spacing==='wide')return'3%';
-  return'1px';
+  if(printSettings.force1Page)return{col:'1px',row:'1px'};
+  if(printSettings.spacing==='medium')return{col:'1.5%',row:'4px'};
+  if(printSettings.spacing==='wide')return{col:'3%',row:'8px'};
+  return{col:'1px',row:'1px'};
 }
 function makeGrid(colors,startIdx,presorted){
 const g=document.createElement('div');g.className='grid';
 const gap=getSpacingGap();
-g.style.gap=gap;
+if(printPanelOpen){g.style.gap=gap.col;}
+else{g.style.columnGap=gap.col;g.style.rowGap=gap.row;}
 const list=presorted?colors:sortColors(colors,currentSort);
 list.forEach((c,i)=>g.appendChild(makeSwatch(c,(startIdx||0)+i)));
 return g;
