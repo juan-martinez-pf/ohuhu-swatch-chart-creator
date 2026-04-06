@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v34</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v35</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -554,7 +554,7 @@ function makePages(displayColors){
     const wrap=document.createElement('div');wrap.className='page-wrap';
     const pageScale=Math.min(1,viewW/dims.w);
     if(pageScale<1){
-      pg.style.transform='scale('+pageScale+')';pg.style.transformOrigin='top center';
+      pg.style.transform='scale('+pageScale+')';
       wrap.style.width=dims.w*pageScale+'px';
       wrap.style.height=dims.h*pageScale+'px';
     }
