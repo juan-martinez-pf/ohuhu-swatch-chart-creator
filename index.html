@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v39</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v40</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -331,7 +331,7 @@ function setSize(sz){
   document.getElementById('btn-sz-large').classList.toggle('active',sz==='large');
   const d=SIZE_DIMS[sz]||SIZE_DIMS.large;
   document.documentElement.style.setProperty('--swatch-size',d.sw+'px');
-  const offsets={small:'0em',medium:'0.9em',large:'1.8em'};
+  const offsets={small:'0.6em',medium:'0.9em',large:'1.8em'};
   document.documentElement.style.setProperty('--shape-offset',offsets[sz]||'1.8em');
   render();
 }
