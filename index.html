@@ -8,7 +8,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#faf5f0;--surface:#fff;--border:#e8ddd4;--text:#3a2e26;--muted:#8a7d73;--accent:#d4726a;--accent-soft:#f2c4c0;--pastel-pink:#fce4ec;--pastel-lilac:#ede7f6;--pastel-mint:#e0f2f1;--pastel-peach:#fff3e0}
+  :root{--bg:#faf5f0;--surface:#fff;--border:#e8ddd4;--text:#3a2e26;--muted:#8a7d73;--accent:#d4726a;--accent-soft:#f2c4c0;--pastel-pink:#fce4ec;--pastel-lilac:#ede7f6;--pastel-mint:#e0f2f1;--pastel-peach:#fff3e0;--swatch-size:112px}
   body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
   header{padding:1.2rem 1.2rem 1rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(180,140,120,.1)}
   .header-top{display:flex;align-items:baseline;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap}
@@ -58,7 +58,7 @@
   body.unfilled .color-block{background:#fff !important}
   /* label positions */
   body.label-above .swatch{flex-direction:column-reverse}
-  body.label-left .grid,body.label-right .grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  body.label-left .grid,body.label-right .grid{grid-template-columns:repeat(auto-fill,minmax(calc(var(--swatch-size) * 1.78),1fr))}
   body.label-left .swatch,body.label-right .swatch{flex-direction:row;align-items:center}
   body.label-left .swatch{flex-direction:row-reverse}
   body.label-left .swatch-info,body.label-right .swatch-info{flex:1;padding:.3rem .6rem}
@@ -88,7 +88,7 @@
   .group-title{font-family:'Fraunces',serif;font-size:.9rem;font-weight:600;color:var(--text)}
   .group-count{font-size:.68rem;color:var(--muted);margin-left:auto}
   /* grid */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:1px;background:var(--surface)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--swatch-size),1fr));gap:1px;background:var(--surface)}
   .swatch{background:var(--surface);cursor:pointer;position:relative;display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s;z-index:1;border-radius:4px;overflow:hidden}
   .swatch:hover{transform:scale(1.04);z-index:10;box-shadow:0 6px 20px rgba(180,140,120,.22)}
   .color-block{width:100%;aspect-ratio:1;position:relative}
@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v32</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v33</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -148,6 +148,55 @@
         <button class="tog-btn" id="btn-group" onclick="setGroup(true)">by family</button>
       </div>
     </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Label</span>
+      <select id="labelPos" onchange="setLabelPos(this.value)">
+        <option value="below" selected>Below</option>
+        <option value="above">Above</option>
+        <option value="left">Left</option>
+        <option value="right">Right</option>
+        <option value="inside">Inside</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Info</span>
+      <div class="btn-group">
+        <button class="tog-btn active" id="btn-li-code" onclick="toggleLabelInfo('code')">Code</button>
+        <button class="tog-btn active" id="btn-li-name" onclick="toggleLabelInfo('name')">Name</button>
+        <button class="tog-btn active" id="btn-li-hex" onclick="toggleLabelInfo('hex')">Hex</button>
+        <button class="tog-btn active" id="btn-li-old" onclick="toggleLabelInfo('old')">Old</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Shape</span>
+      <select id="swatchShape" onchange="setShape(this.value)">
+        <option value="square" selected>Square</option>
+        <option value="circle">Circle</option>
+        <option value="heart">Heart</option>
+        <option value="puppy">Puppy</option>
+        <option value="cat">Cat</option>
+        <option value="bear">Bear</option>
+        <option value="tomato">Tomato</option>
+        <option value="mixed">Mixed</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Size</span>
+      <div class="btn-group">
+        <button class="tog-btn" id="btn-sz-small" onclick="setSize('small')">S</button>
+        <button class="tog-btn" id="btn-sz-medium" onclick="setSize('medium')">M</button>
+        <button class="tog-btn active" id="btn-sz-large" onclick="setSize('large')">L</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Spacing</span>
+      <div class="btn-group" id="spacingGroup">
+        <button class="tog-btn active" id="btn-sp-close" onclick="setSpacing('close')">Close</button>
+        <button class="tog-btn" id="btn-sp-medium" onclick="setSpacing('medium')">Medium</button>
+        <button class="tog-btn" id="btn-sp-wide" onclick="setSpacing('wide')">Wide</button>
+      </div>
+    </div>
     <button class="tog-btn" id="btn-print" onclick="togglePrintPanel()" style="border-radius:8px">Print Preview</button>
     <span class="count" id="count">364 shown</span>
   </div>
@@ -170,47 +219,6 @@
     <div class="btn-group">
       <button class="tog-btn active" id="btn-filled-yes" onclick="toggleFilled(true)">Yes</button>
       <button class="tog-btn" id="btn-filled-no" onclick="toggleFilled(false)">No</button>
-    </div>
-  </div>
-  <div class="ctrl-group">
-    <span class="ctrl-label">Label</span>
-    <select id="labelPos" onchange="setLabelPos(this.value)">
-      <option value="below" selected>Below</option>
-      <option value="above">Above</option>
-      <option value="left">Left</option>
-      <option value="right">Right</option>
-      <option value="inside">Inside</option>
-      <option value="none">None</option>
-    </select>
-  </div>
-  <div class="ctrl-group">
-    <span class="ctrl-label">Info</span>
-    <div class="btn-group">
-      <button class="tog-btn active" id="btn-li-code" onclick="toggleLabelInfo('code')">Code</button>
-      <button class="tog-btn active" id="btn-li-name" onclick="toggleLabelInfo('name')">Name</button>
-      <button class="tog-btn active" id="btn-li-hex" onclick="toggleLabelInfo('hex')">Hex</button>
-      <button class="tog-btn active" id="btn-li-old" onclick="toggleLabelInfo('old')">Old</button>
-    </div>
-  </div>
-  <div class="ctrl-group">
-    <span class="ctrl-label">Shape</span>
-    <select id="swatchShape" onchange="setShape(this.value)">
-      <option value="square" selected>Square</option>
-      <option value="circle">Circle</option>
-      <option value="heart">Heart</option>
-      <option value="puppy">Puppy</option>
-      <option value="cat">Cat</option>
-      <option value="bear">Bear</option>
-      <option value="tomato">Tomato</option>
-      <option value="mixed">Mixed</option>
-    </select>
-  </div>
-  <div class="ctrl-group">
-    <span class="ctrl-label">Spacing</span>
-    <div class="btn-group" id="spacingGroup">
-      <button class="tog-btn active" id="btn-sp-close" onclick="setSpacing('close')">Close</button>
-      <button class="tog-btn" id="btn-sp-medium" onclick="setSpacing('medium')">Medium</button>
-      <button class="tog-btn" id="btn-sp-wide" onclick="setSpacing('wide')">Wide</button>
     </div>
   </div>
   <div class="ctrl-group">
@@ -313,7 +321,18 @@ function updateFamChips(){
 }
 
 // print settings
-const printSettings={pageSize:'letter',filled:true,labelPos:'below',labelInfo:{code:true,name:true,hex:true,old:true},shape:'square',spacing:'close',force1Page:false};
+const printSettings={pageSize:'letter',filled:true,labelPos:'below',labelInfo:{code:true,name:true,hex:true,old:true},shape:'square',size:'large',spacing:'close',force1Page:false};
+const SIZE_DIMS={small:{block:56,sw:56,swLR:100},medium:{block:84,sw:84,swLR:150},large:{block:112,sw:112,swLR:200}};
+function getSwatchDims(){const d=SIZE_DIMS[printSettings.size]||SIZE_DIMS.large;const lp=printSettings.labelPos;return{blockH:d.block,swW:(lp==='left'||lp==='right')?d.swLR:d.sw};}
+function setSize(sz){
+  printSettings.size=sz;
+  document.getElementById('btn-sz-small').classList.toggle('active',sz==='small');
+  document.getElementById('btn-sz-medium').classList.toggle('active',sz==='medium');
+  document.getElementById('btn-sz-large').classList.toggle('active',sz==='large');
+  const d=SIZE_DIMS[sz]||SIZE_DIMS.large;
+  document.documentElement.style.setProperty('--swatch-size',d.sw+'px');
+  render();
+}
 const SHAPES=['heart','puppy','cat','bear','tomato'];
 
 let printPanelOpen=false;
@@ -443,17 +462,18 @@ function makePages(displayColors){
   const dims=getPageDimsPx();
   const cw=dims.w-dims.pad*2, ch=dims.h-dims.pad*2;
   const lp=printSettings.labelPos;
-  const blockH=112;
+  const sd=getSwatchDims();
+  const blockH=sd.blockH;
   let labelH=0;
   if(lp==='below'||lp==='above'){
     const li=printSettings.labelInfo;
-    const lineH=14;
+    const lineH=Math.round(blockH*0.125);
     let lines=0;
     if(li.code)lines++;if(li.name)lines++;if(li.hex)lines++;if(li.old)lines++;
-    labelH=lines>0?12+lines*lineH:0; // 12px padding + lines
+    labelH=lines>0?Math.round(blockH*0.1)+lines*lineH:0;
   }
   const swH=blockH+labelH;
-  const swW=(lp==='left'||lp==='right')?200:112;
+  const swW=sd.swW;
   const gapPct=printSettings.force1Page?0:printSettings.spacing==='wide'?0.03:printSettings.spacing==='medium'?0.015:0;
   const gapNum=gapPct>0?Math.round(cw*gapPct):1;
   const cols=Math.max(1,Math.floor((cw+gapNum)/(swW+gapNum)));
