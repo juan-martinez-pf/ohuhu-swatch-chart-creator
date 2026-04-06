@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v35</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v36</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -446,12 +446,12 @@ function getSpacingGap(){
   if(printSettings.spacing==='wide')return'3%';
   return'1px';
 }
-function makeGrid(colors,startIdx){
+function makeGrid(colors,startIdx,presorted){
 const g=document.createElement('div');g.className='grid';
 const gap=getSpacingGap();
 g.style.gap=gap;
-const sorted=sortColors(colors,currentSort);
-sorted.forEach((c,i)=>g.appendChild(makeSwatch(c,(startIdx||0)+i)));
+const list=presorted?colors:sortColors(colors,currentSort);
+list.forEach((c,i)=>g.appendChild(makeSwatch(c,(startIdx||0)+i)));
 return g;
 }
 function getPageDimsPx(){
@@ -541,7 +541,7 @@ function makePages(displayColors){
     const pg=document.createElement('div');pg.className='page';
     pg.style.width=dims.w+'px';pg.style.height=dims.h+'px';
     const allSwatches=items.filter(it=>it.type==='swatch').map(it=>it.color);
-    const grid=makeGrid(allSwatches,0);
+    const grid=makeGrid(allSwatches,0,true);
     const neededRows=Math.ceil(allSwatches.length/cols);
     const neededH=neededRows*(swH+1);
     const contentScale=Math.min(1,ch/neededH,cw/(cols*(swW+1)));
