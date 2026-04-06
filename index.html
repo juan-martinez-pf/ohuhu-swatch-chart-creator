@@ -109,7 +109,7 @@
 <body>
 <header>
   <div class="header-top">
-    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v33</span></h1>
+    <h1>Ohuhu Swatch Chart Creator <span style="font-size:.55em;font-weight:300;color:var(--muted)">v34</span></h1>
     <span class="subtitle" id="subtitle">Swatch Reference · 364 colors</span>
   </div>
   <div class="controls">
@@ -448,7 +448,7 @@ function getSpacingGap(){
 }
 function makeGrid(colors,startIdx){
 const g=document.createElement('div');g.className='grid';
-const gap=printPanelOpen?getSpacingGap():'1px';
+const gap=getSpacingGap();
 g.style.gap=gap;
 const sorted=sortColors(colors,currentSort);
 sorted.forEach((c,i)=>g.appendChild(makeSwatch(c,(startIdx||0)+i)));
